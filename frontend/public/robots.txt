@@ -1,0 +1,11 @@
+# يسمح لكل محركات البحث بفهرسة كل صفحات الموقع العامة
+User-agent: *
+Allow: /
+
+# ما لازم تتفهرس هاي (صفحات خاصة بالمستخدم المسجل دخول)
+Disallow: /settings
+Disallow: /upload
+Disallow: /notifications
+Disallow: /admin
+
+Sitemap: https://kynex.example/sitemap.xml

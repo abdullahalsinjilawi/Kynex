@@ -1,0 +1,26 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8B6BFF"/>
+      <stop offset="100%" stop-color="#5B3FD9"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="9" y1="6" x2="25" y2="26" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#EAE6FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
+
+  <!-- الساق العمودية لحرف K -->
+  <rect x="9" y="6.5" width="3.4" height="19" rx="1" fill="url(#mark)"/>
+
+  <!-- الذراع العلوية (قطرية للأعلى) -->
+  <polygon points="12.4,15 15.6,15 24,6.5 19.4,6.5" fill="url(#mark)"/>
+
+  <!-- الذراع السفلية (قطرية للأسفل) -->
+  <polygon points="12.4,17 15.6,17 24,25.5 19.4,25.5" fill="url(#mark)"/>
+
+  <!-- نقطة العقدة - لمسة اللون السماوي الوحيدة، توحي بالشبكات العصبية / الجيل الجاي -->
+  <circle cx="25.3" cy="6.5" r="2" fill="#2DD9C7"/>
+</svg>

@@ -1,0 +1,55 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0E1A"/>
+      <stop offset="100%" stop-color="#1B1440"/>
+    </linearGradient>
+    <linearGradient id="badgeBg" x1="0" y1="0" x2="84" y2="84" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8B6BFF"/>
+      <stop offset="100%" stop-color="#5B3FD9"/>
+    </linearGradient>
+    <linearGradient id="badgeMark" x1="24" y1="16" x2="66" y2="68" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#EAE6FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- زخرفة شبكة عقد (violet + cyan) توحي بشبكة عصبية / next-gen -->
+  <g opacity="0.5" stroke="#8B6BFF" stroke-width="1.5">
+    <line x1="860" y1="80" x2="990" y2="145"/>
+    <line x1="990" y1="145" x2="945" y2="275"/>
+    <line x1="990" y1="145" x2="1125" y2="120"/>
+    <line x1="945" y1="275" x2="1075" y2="330"/>
+    <line x1="860" y1="80" x2="1000" y2="45"/>
+    <line x1="1075" y1="330" x2="1000" y2="440"/>
+  </g>
+  <g>
+    <circle cx="860" cy="80" r="6" fill="#8B6BFF"/>
+    <circle cx="990" cy="145" r="8" fill="#8B6BFF"/>
+    <circle cx="945" cy="275" r="5" fill="#8B6BFF"/>
+    <circle cx="1125" cy="120" r="5" fill="#8B6BFF"/>
+    <circle cx="1000" cy="45" r="4" fill="#8B6BFF"/>
+    <circle cx="1075" cy="330" r="6" fill="#2DD9C7"/>
+    <circle cx="1000" cy="440" r="5" fill="#2DD9C7"/>
+  </g>
+
+  <!-- شعار Kynex -->
+  <rect x="90" y="130" width="84" height="84" rx="20" fill="url(#badgeBg)"/>
+  <rect x="114" y="147" width="9" height="50" rx="2.5" fill="url(#badgeMark)"/>
+  <polygon points="123,169 132,169 154,147 141,147" fill="url(#badgeMark)"/>
+  <polygon points="123,175 132,175 154,197 141,197" fill="url(#badgeMark)"/>
+  <circle cx="157.5" cy="147" r="5.2" fill="#2DD9C7"/>
+
+  <!-- اسم المنصة -->
+  <text x="90" y="320" font-family="Poppins" font-weight="700" font-size="88" fill="#F2F1F6">Kynex</text>
+
+  <!-- الوصف بالإنجليزي (نص SVG عربي بيتكسر بمحرك المعاينة المحلي، فخلينا نص المشاركة
+       الاجتماعي إنجليزي بالكامل - الموقع نفسه ثنائي اللغة أصلاً وواجهته الحقيقية
+       بتعرض العربي صح تماماً، هاي بس صورة المعاينة الثابتة لفيسبوك/تويتر/لينكدإن) -->
+  <text x="90" y="385" font-family="Poppins" font-weight="500" font-size="32" fill="#9C8BFD">The AI builders community</text>
+  <text x="90" y="440" font-family="Poppins" font-weight="400" font-size="26" fill="#C8C7D3">Training code, model architectures &amp; datasets.</text>
+  <text x="90" y="478" font-family="Poppins" font-weight="400" font-size="26" fill="#C8C7D3">Share your work, learn from others.</text>
+
+</svg>

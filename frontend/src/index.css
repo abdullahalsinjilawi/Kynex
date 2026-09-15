@@ -1,0 +1,274 @@
+@import "tailwindcss";
+
+/* بدل ما نكرر [html.light_&]: بكل مكان، عرّفنا variant قصير اسمه light نستخدمه هيك: light:bg-paper */
+@custom-variant light (&:where(.light, .light *));
+
+@theme {
+  --font-sans: "IBM Plex Sans Arabic", "IBM Plex Sans", sans-serif;
+  --font-display: "Poppins", "IBM Plex Sans Arabic", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* البنفسجي - اللون المميز الأساسي بالمنصة (أزرار أساسية، حالة نشطة، روابط) */
+  --color-violet-50: #f2f0ff;
+  --color-violet-400: #9c8bfd;
+  --color-violet-500: #7c5cfc;
+  --color-violet-600: #6947e8;
+  --color-violet-900: #241a5c;
+
+  /* السماوي - لمسة ثانوية واحدة بس، لعناصر "الجيل الجاي" (الشعار، توهج البطل، حدود مميزة) */
+  --color-cyan-400: #5EEAE0;
+  --color-cyan-500: #2DD9C7;
+
+  /* الذهبي - استثناء وحيد للبنفسجي، فقط لأيقونة النجمة (زي GitHub بالضبط) */
+  --color-gold: #f5b942;
+
+  /* الوضع الداكن (افتراضي) - إنديغو غامق مائل للأزرق، مو رمادي مسطّح */
+  --color-ink: #0b0e1a;
+  --color-ink-surface: #141726;
+  --color-ink-surface-raised: #1c1f31;
+  --color-ink-border: #262a3d;
+  --color-ink-text: #f2f1f6;
+  --color-ink-muted: #8b8a99;
+
+  /* الوضع الفاتح */
+  --color-paper: #f7f7f9;
+  --color-paper-surface: #ffffff;
+  --color-paper-border: #e4e4e9;
+  --color-paper-text: #14141b;
+  --color-paper-muted: #6b6a76;
+}
+
+/* الوضع الافتراضي: داكن. نبدّل عن طريق كلاس .light على html */
+html {
+  color-scheme: dark;
+}
+html.light {
+  color-scheme: light;
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-ink-text);
+  font-family: var(--font-sans);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+html.light body {
+  background-color: var(--color-paper);
+  color: var(--color-paper-text);
+}
+
+/* سطر أنيق يخفي شريط التمرير بالقوائم الأفقية (المشاريع المميزة) بدون ما يفقد إمكانية التمرير */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ==================== حركات خفيفة (هيبة، مش استعراض) ==================== */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-in {
+  opacity: 0;
+  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--card-delay, 0ms);
+}
+
+/* توهج بطيء وهادئ خلف عناصر hero - عمق بدون إلهاء */
+@keyframes float-glow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-10px, 12px) scale(1.05); }
+}
+
+.animate-float-slow {
+  animation: float-glow 12s ease-in-out infinite;
+}
+.animate-float-slow-reverse {
+  animation: float-glow 14s ease-in-out infinite reverse;
+}
+
+/* انتقال ناعم عند تغيّر الصفحة بدل القفزة المفاجئة */
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-page-in {
+  animation: page-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* حترم تفضيل المستخدمين يلي بيوقفوا الحركة بإعدادات جهازهم */
+@media (prefers-reduced-motion: reduce) {
+  .animate-card-in, .animate-float-slow, .animate-float-slow-reverse, .animate-page-in {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ==================== عرض README (Markdown) ==================== */
+/* أنماط بسيطة ومتسقة مع نظام الألوان الحالي - مستخدمة بمكوّن MarkdownView */
+
+.markdown-body {
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--color-ink-text);
+}
+html.light .markdown-body {
+  color: var(--color-paper-text);
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  font-weight: 600;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+  line-height: 1.35;
+}
+.markdown-body h1 { font-size: 1.25rem; }
+.markdown-body h2 { font-size: 1.1rem; }
+.markdown-body h3 { font-size: 1rem; }
+.markdown-body h1:first-child, .markdown-body h2:first-child, .markdown-body h3:first-child {
+  margin-top: 0;
+}
+
+.markdown-body p { margin-bottom: 0.9em; }
+
+.markdown-body ul, .markdown-body ol {
+  margin-bottom: 0.9em;
+  padding-inline-start: 1.4em;
+}
+.markdown-body ul { list-style: disc; }
+.markdown-body ol { list-style: decimal; }
+.markdown-body li { margin-bottom: 0.25em; }
+
+.markdown-body a {
+  color: var(--color-violet-400);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-body code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background-color: var(--color-ink-surface);
+  border-radius: 4px;
+  padding: 0.15em 0.4em;
+}
+html.light .markdown-body code {
+  background-color: var(--color-paper-surface);
+  border: 1px solid var(--color-paper-border);
+}
+
+.markdown-body pre {
+  background-color: var(--color-ink-surface);
+  border: 1px solid var(--color-ink-border);
+  border-radius: 10px;
+  padding: 0.9em 1em;
+  overflow-x: auto;
+  margin-bottom: 0.9em;
+}
+html.light .markdown-body pre {
+  background-color: var(--color-paper-surface);
+  border-color: var(--color-paper-border);
+}
+.markdown-body pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.markdown-body blockquote {
+  border-inline-start: 3px solid var(--color-violet-500);
+  padding-inline-start: 0.9em;
+  color: var(--color-ink-muted);
+  margin-bottom: 0.9em;
+}
+html.light .markdown-body blockquote {
+  color: var(--color-paper-muted);
+}
+
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid var(--color-ink-border);
+  margin: 1.25em 0;
+}
+html.light .markdown-body hr {
+  border-top-color: var(--color-paper-border);
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.9em;
+  font-size: 0.85em;
+}
+.markdown-body th, .markdown-body td {
+  border: 1px solid var(--color-ink-border);
+  padding: 0.4em 0.6em;
+  text-align: right;
+}
+html.light .markdown-body th, html.light .markdown-body td {
+  border-color: var(--color-paper-border);
+}
+.markdown-body th {
+  background-color: var(--color-ink-surface);
+  font-weight: 600;
+}
+html.light .markdown-body th {
+  background-color: var(--color-paper-surface);
+}
+
+.markdown-body img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/* ==================== تلوين الكود (highlight.js) ==================== */
+/* ألوان مختارة يدوياً متناسقة مع هوية الموقع (بنفسجي/سماوي/ذهبي) بدل ثيم جاهز عام */
+
+.hljs-keyword, .hljs-built_in, .hljs-selector-tag {
+  color: var(--color-violet-400);
+}
+.hljs-string, .hljs-addition, .hljs-regexp {
+  color: var(--color-cyan-400);
+}
+.hljs-comment, .hljs-quote {
+  color: var(--color-ink-muted);
+  font-style: italic;
+}
+html.light .hljs-comment, html.light .hljs-quote {
+  color: var(--color-paper-muted);
+}
+.hljs-number, .hljs-literal {
+  color: var(--color-gold);
+}
+.hljs-title, .hljs-title.function_, .hljs-title.class_ {
+  color: var(--color-ink-text);
+  font-weight: 600;
+}
+html.light .hljs-title, html.light .hljs-title.function_, html.light .hljs-title.class_ {
+  color: var(--color-paper-text);
+}
+.hljs-attr, .hljs-property, .hljs-tag, .hljs-name, .hljs-symbol {
+  color: #E893C7;
+}
+.hljs-deletion {
+  color: #F87171;
+}
+.hljs-meta, .hljs-doctag {
+  color: var(--color-ink-muted);
+}
+html.light .hljs-meta, html.light .hljs-doctag {
+  color: var(--color-paper-muted);
+}
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 700; }

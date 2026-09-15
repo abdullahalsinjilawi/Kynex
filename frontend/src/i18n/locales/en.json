@@ -1,0 +1,340 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "send": "Send",
+    "close": "Close",
+    "report": "Report",
+    "search": "Search",
+    "userNotFound": "User not found",
+    "projectNotFound": "Project not found",
+    "fileCount_one": "{{count}} file",
+    "fileCount_other": "{{count}} files",
+    "viewCount_one": "{{count}} view",
+    "viewCount_other": "{{count}} views",
+    "units": {
+      "bytes": "bytes",
+      "kb": "KB",
+      "mb": "MB",
+      "gb": "GB"
+    },
+    "time": {
+      "now": "Just now",
+      "minutesAgo_one": "{{count}} minute ago",
+      "minutesAgo_other": "{{count}} minutes ago",
+      "hoursAgo_one": "{{count}} hour ago",
+      "hoursAgo_other": "{{count}} hours ago",
+      "daysAgo_one": "{{count}} day ago",
+      "daysAgo_other": "{{count}} days ago",
+      "monthsAgo_one": "{{count}} month ago",
+      "monthsAgo_other": "{{count}} months ago",
+      "yearsAgo_one": "{{count}} year ago",
+      "yearsAgo_other": "{{count}} years ago"
+    }
+  },
+  "header": {
+    "searchPlaceholder": "Search projects, languages, tags...",
+    "toggleTheme": "Toggle theme",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "myProfile": "My profile",
+    "settings": "Settings",
+    "adminPanel": "Admin panel",
+    "logout": "Log out",
+    "login": "Log in",
+    "register": "Sign up",
+    "language": "العربية"
+  },
+  "categories": {
+    "trainingCode": "Training code",
+    "modelArchitecture": "Model architecture",
+    "dataset": "Dataset",
+    "dataCleaning": "Data cleaning",
+    "other": "Other",
+    "all": "All categories"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin panel",
+      "subtitle": "Manage users, projects, and reports."
+    },
+    "tabs": {
+      "users": "Users",
+      "projects": "Projects",
+      "reports": "Reports"
+    },
+    "users": {
+      "searchPlaceholder": "Search by name or email...",
+      "banReasonPrompt": "Ban reason (optional):",
+      "verified": "Verified ✓",
+      "banned": "Banned",
+      "adminRole": "Admin",
+      "joinedPrefix": "Joined",
+      "revokeVerification": "Revoke verification",
+      "grantVerification": "Grant verification",
+      "unban": "Unban",
+      "ban": "Ban"
+    },
+    "projects": {
+      "searchPlaceholder": "Search by project name...",
+      "hidden": "Hidden",
+      "featured": "Featured",
+      "starsCount_one": "{{count}} star",
+      "starsCount_other": "{{count}} stars",
+      "unfeature": "Unfeature",
+      "feature": "Feature",
+      "show": "Show",
+      "hide": "Hide"
+    },
+    "reports": {
+      "status": {
+        "pending": "Pending review",
+        "reviewed": "Reviewed",
+        "actioned": "Action taken",
+        "dismissed": "Dismissed",
+        "all": "All"
+      },
+      "target": {
+        "comment": "Comment",
+        "project": "Project",
+        "user": "User"
+      },
+      "empty": "No reports in this status.",
+      "reportedBy": "Reported by:",
+      "notePlaceholder": "Admin note (optional)...",
+      "markReviewed": "Mark reviewed",
+      "dismiss": "Dismiss report",
+      "banOffender": "Ban the offender"
+    }
+  },
+  "comingSoon": {
+    "notFoundTitle": "Page not found",
+    "body": "The page you're looking for doesn't exist — the link might be wrong, or the page has moved.",
+    "backHome": "Back to home"
+  },
+  "about": {
+    "title": "The Kynex story",
+    "subtitle": "The AI community — why this platform exists, and who's behind it.",
+    "whyTitle": "Why Kynex?",
+    "whyBody1": "AI is a huge, fast-moving field, but there isn't a clear, large Arabic learning ecosystem around it the way there is for other programming fields (web, mobile...). Lots of people want to learn AI but struggle to find organized resources, real projects to work on, or a community to support them along the way.",
+    "whyBody2": "We picked the name Kynex deliberately — a fully invented name with no dictionary meaning, chosen because it evokes the energy and speed of next-generation technology. Kynex was built to close that gap — a place where you can find ready datasets, training code, and model architectures in different languages, share your own work, and learn from others', without feeling like you're on the journey alone.",
+    "whatTitle": "What is the platform, exactly?",
+    "whatBody": "An open public space: you upload your project (with a clear license that protects your rights), people browse it, download it, learn from it, and reach out if they have a question. We don't store the trained models themselves — they go straight to your own HuggingFace account, so ownership and control stay fully in your hands.",
+    "whoTitle": "Who's behind it?",
+    "whoBodyPrefix": "Kynex is the idea and work of",
+    "whoBodySuffix": ", who noticed the gap in Arabic AI education compared to other programming fields, and decided to build a place where support and resources are available to anyone interested in learning and contributing to this field."
+  },
+  "terms": {
+    "title": "Terms of Use & Privacy Policy",
+    "s1Title": "1. Nature of the platform",
+    "s1Body": "The platform is a public space for developers to share AI projects (training code, model architectures, datasets). All published projects are public and available to any visitor.",
+    "s2Title": "2. Responsibility for content",
+    "s2Body": "The user who uploads content is fully and solely responsible for it — whether it's code, a dataset, a description, or a comment. The platform does not review all content before publishing and relies on a user reporting system. The platform is not liable for any damage resulting from the use of content uploaded by a third party, including (without limitation) code containing bugs, security vulnerabilities, or content that infringes intellectual property.",
+    "s3Title": "3. Intellectual property and licensing",
+    "s3Body": "Every published project comes with a license chosen by its owner at upload time (a standard license or a custom one). Using any project means you fully accept the terms of the license specified on its page. The platform does not verify ownership claims at upload time, and the responsibility for making sure no third-party rights are violated lies with the uploader.",
+    "s4Title": "4. Data protection and encryption",
+    "s4Body": "All your sensitive data (password, HuggingFace token, and any other personal data) is stored fully encrypted on our servers. We do not sell your data to any third party. The HuggingFace token is used exclusively to upload your models to your own HuggingFace account, and for no other purpose.",
+    "s5Title": "5. Acceptance of the terms",
+    "s5Body": "By creating an account on the platform, you explicitly agree to these terms in full. Continuing to use the platform after any update to these terms is considered implicit acceptance of the updated version.",
+    "s6Title": "6. Account deletion",
+    "s6Body": "When you request account deletion, the account enters a 30-day delayed-deletion period during which you can log in and reverse the decision at any time. After this period ends, your account and all its associated projects are permanently and irreversibly deleted.",
+    "s7Title": "7. Bans and account suspension",
+    "s7Body": "The platform's administration reserves the right to ban any account that violates these terms, based on a review of user reports, without a mandatory prior notice.",
+    "s8Title": "8. Contact",
+    "s8Body": "For any inquiry related to these terms or your personal data, contact us at [contact email — fill this in]."
+  },
+  "settings": {
+    "title": "Settings",
+    "pendingDeletion": "Your account is currently scheduled for deletion. You have 30 days to change your mind.",
+    "restoreAccount": "Restore account",
+    "profile": "Profile",
+    "name": "Name",
+    "bio": "Bio",
+    "profileSaved": "Changes saved",
+    "hfTokenTitle": "HuggingFace token",
+    "hfTokenDesc": "This token is used to upload trained models directly to your HuggingFace account. It's stored fully encrypted — we recommend using a write-only token.",
+    "hfTokenSaved": "✓ A token is saved",
+    "deleteToken": "Delete token",
+    "apiKeyTitle": "API Key",
+    "apiKeyDesc": "Share this key with anyone you want to let download your projects programmatically (once every 24 hours per project).",
+    "apiKeySaveWarning": "Save it now — you won't be able to see it again.",
+    "apiKeyActive": "✓ You have an active API key",
+    "regenerateApiKey": "Generate a new key (invalidates the old one)",
+    "generateApiKey": "Generate API key",
+    "dangerZone": "Danger zone",
+    "deleteAccountDesc": "Account deletion is delayed by 30 days before it becomes permanent — you can change your mind during that window.",
+    "confirmPasswordPlaceholder": "Enter your password to confirm",
+    "deleteAccount": "Delete my account",
+    "confirmDelete": "Are you sure you want to delete your account? It will be permanently deleted after 30 days."
+  },
+  "messages": {
+    "title": "Messages",
+    "empty": "No conversations yet. Reach out to a project owner from their project page.",
+    "messagePlaceholder": "Write a message...",
+    "selectConversation": "Select a conversation from the list",
+    "deletedUser": "Deleted user"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet.",
+    "markAllRead": "Mark all as read"
+  },
+  "profile": {
+    "verified": "Verified ✓",
+    "lastActiveAndJoined": "Active {{lastActive}} · Joined {{joined}}",
+    "projects": "Projects",
+    "totalStars": "Total stars",
+    "empty": "No projects uploaded yet."
+  },
+  "report": {
+    "categories": {
+      "harassment": "Harassment / bullying",
+      "hate_speech": "Hate speech",
+      "inappropriate_content": "Inappropriate content",
+      "spam": "Spam or advertising",
+      "stolen_content": "Plagiarism or stolen content",
+      "misinformation": "Misinformation",
+      "other": "Other reason"
+    },
+    "title": "Why are you reporting this?",
+    "subtitle": "Pick the closest reason — our team will review it.",
+    "chooseReason": "Choose a reason for the report",
+    "explainOther": "Please explain if you picked \"Other reason\"",
+    "explainPlaceholder": "Explain the reason...",
+    "submitting": "Submitting...",
+    "submit": "Submit report"
+  },
+  "filePreview": {
+    "genericError": "Couldn't fetch the file content",
+    "downloadInstead": "Download the full project instead"
+  },
+  "projectDetail": {
+    "contactOwner": "Contact the project owner",
+    "download": "Download ({{count}})",
+    "messageSent": "✓ Your message was sent.",
+    "viewConversation": "View conversation",
+    "askPlaceholder": "Ask {{name}} about this project...",
+    "overview": "Overview",
+    "noReadme": "No README has been written for this project.",
+    "filesTab": "Files",
+    "noFiles": "No files.",
+    "commentsTab": "Comments",
+    "commentPlaceholder": "Write a comment...",
+    "loginTo": "Log in",
+    "toComment": "to add a comment.",
+    "noComments": "No comments yet — be the first.",
+    "edited": "(edited)",
+    "reportProject": "Report this project",
+    "reportSubmitted": "Your report was received, the team will review it",
+    "commentAddError": "Couldn't add your comment, please try again",
+    "commentEditError": "Couldn't save the edit, please try again",
+    "contactSendError": "Couldn't send your message, please try again"
+  },
+  "upload": {
+    "title": "Upload a new project",
+    "subtitle": "Share training code, a model architecture, or a dataset with the community.",
+    "projectName": "Project name",
+    "projectNamePlaceholder": "e.g. Cat image classifier with PyTorch",
+    "description": "Description",
+    "readme": "README",
+    "readmeFormat": "(Markdown format)",
+    "readmePlaceholder": "How to run it, requirements, usage...\n\n# Heading\n```python\nprint(\"code\")\n```",
+    "category": "Category",
+    "language": "Programming language",
+    "tags": "Tags (comma-separated)",
+    "tagsPlaceholder": "nlp, transformers, pytorch",
+    "license": "License",
+    "licenseCustomPlaceholder": "Write your custom license text here...",
+    "files": "Files",
+    "singleFiles": "Individual files",
+    "singleFilesHint": "Pick one or more files with no folder structure",
+    "wholeFolder": "Whole folder",
+    "wholeFolderHint": "Keeps the subfolder structure (src, tests...)",
+    "clearAll": "Clear all",
+    "requiredFields": "Name, description, and programming language are all required",
+    "uploadError": "Something went wrong while uploading",
+    "uploading": "Uploading...",
+    "submit": "Publish project"
+  },
+  "editProject": {
+    "title": "Edit project",
+    "forbidden": "You can't edit this project.",
+    "currentFiles": "Current files ({{count}})",
+    "replaceFiles": "Replace files",
+    "optional": "(optional)",
+    "replaceFilesHint": "If you upload new files, they'll completely replace the current ones (a backup of the old ones is kept for 7 days). If you don't upload anything, the current files stay as they are.",
+    "newFilesSummary": "{{count}} new file(s) · {{size}} (will replace all current files)",
+    "saveError": "Something went wrong while saving",
+    "saving": "Saving...",
+    "saveChanges": "Save changes"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "genericError": "Something went wrong, please try again",
+    "login": {
+      "title": "Log in",
+      "subtitle": "Welcome back. Log in to keep going.",
+      "submitting": "Logging in...",
+      "submit": "Log in",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create a new account"
+    },
+    "register": {
+      "title": "Create a new account",
+      "subtitle": "Share your projects with the AI developer community.",
+      "name": "Name",
+      "passwordPlaceholder": "At least 8 characters",
+      "agreeTo": "I agree to the",
+      "terms": "Terms of Use",
+      "mustAcceptTerms": "You must accept the Terms of Use to continue",
+      "submitting": "Creating...",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "login": "Log in"
+    }
+  },
+  "sort": {
+    "newest": "Newest",
+    "mostStarred": "Most starred",
+    "mostDownloaded": "Most downloaded"
+  },
+  "explore": {
+    "title": "Explore projects",
+    "languagePlaceholder": "Programming language (Python, C++...)",
+    "tagsPlaceholder": "Tags (comma-separated): nlp, pytorch",
+    "searchResultsFor": "Search results for:",
+    "empty": "No matching projects found. Try different filters."
+  },
+  "home": {
+    "heroTitle": "AI projects, ready to build on from the first moment",
+    "heroSubtitle": "Cleaned datasets, model architectures in different languages, and ready-to-run training code — all with a clear license and a trusted source. The trained model itself goes straight to your own HuggingFace account.",
+    "exploreProjects": "Explore projects",
+    "uploadYours": "Upload your project",
+    "trending": "Trending",
+    "viewAll": "View all",
+    "latest": "Latest projects",
+    "empty": "No projects yet. Be the first to upload one to the platform.",
+    "stats": {
+      "projects": "published projects",
+      "members": "community members",
+      "stars": "stars given"
+    },
+    "latestMembers": {
+      "title": "Newest members",
+      "joined": "Joined {{time}}"
+    }
+  },
+  "footer": {
+    "tagline": "AI community",
+    "about": "About",
+    "terms": "Terms & privacy",
+    "explore": "Explore projects"
+  },
+  "protectedRoute": {
+    "checking": "Checking permissions..."
+  }
+}
