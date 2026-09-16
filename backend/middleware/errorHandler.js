@@ -39,7 +39,10 @@ const errorHandler = (err, req, res, next) => {
 // middleware للتعامل مع أي route غير موجود (404)
 const notFound = (req, res, next) => {
   const error = new Error(t(req.lang || 'ar', 'routeNotFound', { path: req.originalUrl }));
-  res.status(404);
+  // errorHandler فوق بيقرأ err.statusCode (مش res.statusCode) عشان يقرر الكود يلي يرجعه.
+  // res.status(404) لحالها هون كانت عمياء عن errorHandler، فكانت النتيجة إنو كل مسار
+  // غير موجود (متل GET / ) يرجع 500 "خطأ سيرفر عام" بدل 404 "مش موجود" الحقيقي.
+  error.statusCode = 404;
   next(error);
 };
 

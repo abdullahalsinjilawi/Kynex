@@ -35,10 +35,31 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // CORS: بالإنتاج نسمح فقط لدومين الفرونت اند الحقيقي (مو '*')، لأنو الكوكيز
 // اللي فيها الـ JWT ما بتنبعت أصلاً لطلبات cross-origin إلا لو الأصل مسموح صراحة
-const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+//
+// FRONTEND_URL ممكن يكون أكتر من دومين مفصولين بفاصلة (مثلاً بعد ما تضيف دومين مخصص
+// بجانب دومين Render الافتراضي): FRONTEND_URL=https://kynex-2tld.onrender.com,https://kynex.app
+// وبنشيل أي '/' زايدة بآخر كل دومين حتى ما ينكسر المطابقة بسبب فرق بسيط زي هيك
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin: (origin, callback) => {
+      // ما في Origin header إطلاقاً (طلبات سيرفر-لسيرفر، curl، Postman...) - نسمحها
+      if (!origin) return callback(null, true);
+
+      const normalizedOrigin = origin.replace(/\/$/, '');
+      if (allowedOrigins.includes(normalizedOrigin)) {
+        return callback(null, true);
+      }
+
+      // نسجّل أي دومين انرفض حتى نلاحظ فوراً بالـ logs لو FRONTEND_URL مش مضبوط
+      // صح، بدل ما نضل نخمّن ليش الفرونت اند عم ياخد "blocked by CORS policy" بصمت
+      logger.warn(`🚫 CORS رفض طلب من دومين غير موجود بقائمة FRONTEND_URL: ${origin}`);
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true, // ضروري حتى تنبعت/تنقبل الكوكيز عبر الطلبات cross-origin
   })
 );
@@ -60,11 +81,18 @@ const generalLimiter = rateLimit({
 app.use(generalLimiter);
 
 // --- Routes ---
+// بعض أدوات المراقبة/الـ uptime pingers بتضرب الدومين الرئيسي "/" مباشرة (مش "/api/health")
+// حتى تتأكد إنو الخدمة صاحية. بدون هاد الراوت كانت كل هاي الطلبات بترجع كخطأ بالـ logs
+app.get('/', (req, res) => {
+  res.status(200).json({ success: true, message: 'Kynex API 🚀' });
+});
+
 app.use('/api/health', require('./routes/health'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/projects', require('./routes/projectRoutes'));
 app.use('/api/comments', require('./routes/commentRoutes'));
+app.use('/api/posts', require('./routes/postRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));

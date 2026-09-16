@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Project = require('../models/Project');
+const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const Report = require('../models/Report');
 const AdminAuditLog = require('../models/AdminAuditLog');
@@ -206,6 +207,9 @@ const updateReportStatus = async (req, res, next) => {
       } else if (report.targetType === 'project') {
         const project = await Project.findById(report.targetId);
         userIdToBan = project?.owner;
+      } else if (report.targetType === 'post') {
+        const post = await Post.findById(report.targetId);
+        userIdToBan = post?.author;
       }
 
       if (userIdToBan) {
@@ -243,7 +247,39 @@ const getAuditLog = async (req, res, next) => {
   }
 };
 
+// ==================== منشورات المنتدى ====================
+
+// قائمة كل المنشورات للإدارة (بما فيها المخفية والمحذوفة، حتى تكون المراجعة كاملة).
+// إجراءات الإخفاء/التثبيت نفسها موجودة على /api/posts/:id/hide|pin (نفس الـ adminOnly)
+const getAllPostsAdmin = async (req, res, next) => {
+  try {
+    const { search, page = 1, limit = 20 } = req.query;
+    const query = {};
+    if (search) query.title = { $regex: search, $options: 'i' };
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const [posts, total] = await Promise.all([
+      Post.find(query)
+        .select('-content')
+        .populate('author', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      Post.countDocuments(query),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      posts,
+      pagination: { page: Number(page), limit: Number(limit), total, pages: Math.ceil(total / limit) },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
+  getAllPostsAdmin,
   getAllUsers,
   toggleBanUser,
   toggleVerifiedUser,

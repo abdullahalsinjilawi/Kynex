@@ -8,7 +8,6 @@ const {
   generateApiKey,
   getApiKeyStatus,
   getPublicProfile,
-  getRecentMembers,
   requestAccountDeletion,
   restoreAccount,
 } = require('../controllers/userController');
@@ -28,8 +27,8 @@ router.delete('/me', protect, requestAccountDeletion);
 router.post('/me/restore', protect, restoreAccount);
 
 // --- Route عام (بروفايل أي مستخدم، بدون حماية) ---
-// ملاحظة: /recent لازم تكون قبل /:id وإلا express رح يعتبر "recent" هي قيمة :id
-router.get('/recent', getRecentMembers);
+// ملاحظة: كان هون مسار /recent بيرجّع آخر الأعضاء اللي انضموا. انشال بقرار من صاحب
+// المنصة: انضمام الأعضاء الجدد ما بينعرض علناً، لا بالصفحة الرئيسية ولا عبر الـ API.
 router.get('/:id', getPublicProfile);
 
 module.exports = router;

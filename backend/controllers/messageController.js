@@ -101,10 +101,9 @@ const getConversations = async (req, res, next) => {
 // @desc   رسائل محادثة معيّنة + تعليمها كمقروءة
 const getConversationMessages = async (req, res, next) => {
   try {
-    const conversation = await Conversation.findById(req.params.id).populate(
-      'participants',
-      'name avatarUrl verified'
-    );
+    const conversation = await Conversation.findById(req.params.id)
+      .populate('participants', 'name avatarUrl verified')
+      .populate('relatedProject', 'name slug');
 
     // ملاحظة: p ممكن تكون null لو الطرف التاني بالمحادثة اتحذف حسابه نهائياً (populate
     // بيرجع null للـ ref يلي ما عاد موجود) - لازم نتأكد p موجودة قبل ما نقرأ p._id
@@ -122,7 +121,9 @@ const getConversationMessages = async (req, res, next) => {
 
     const otherUser = findOtherParticipant(conversation.participants, req.user._id, req.lang);
 
-    res.status(200).json({ success: true, messages, otherUser });
+    // منرجّع المشروع المرتبط كمان (لو المحادثة انبدت من صفحة مشروع) حتى الواجهة
+    // تقدر تعرض سياق المحادثة بدل اسم مجرّد بدون خلفية
+    res.status(200).json({ success: true, messages, otherUser, relatedProject: conversation.relatedProject || null });
   } catch (error) {
     next(error);
   }

@@ -13,7 +13,7 @@ const createReport = async (req, res, next) => {
   try {
     const { targetType, targetId, category, reason } = req.body;
 
-    if (!['comment', 'project', 'user'].includes(targetType)) {
+    if (!['comment', 'project', 'user', 'post'].includes(targetType)) {
       return res.status(400).json({ success: false, message: t(req.lang, 'invalidReportType') });
     }
 

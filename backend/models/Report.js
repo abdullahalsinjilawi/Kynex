@@ -21,7 +21,7 @@ const reportSchema = new mongoose.Schema(
     // نوع المحتوى المُبلَّغ عنه
     targetType: {
       type: String,
-      enum: ['comment', 'project', 'user'],
+      enum: ['comment', 'project', 'user', 'post'],
       required: true,
     },
     targetId: {

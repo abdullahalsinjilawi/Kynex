@@ -10,7 +10,16 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['new_comment', 'new_star', 'report_update', 'verified_badge'],
+      enum: [
+        'new_comment',
+        'new_star',
+        'report_update',
+        'verified_badge',
+        // إشعارات المنتدى
+        'post_comment',
+        'post_reply',
+        'post_reaction',
+      ],
       required: true,
     },
     // مفتاح رسالة الإشعار (يقابل مفتاح بقاموس utils/i18n.js) + متغيراته، بدل نص جاهز
@@ -30,6 +39,11 @@ const notificationSchema = new mongoose.Schema(
     relatedProject: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Project',
+    },
+    // منشور المنتدى المرتبط بالإشعار (تعليق/رد/تفاعل)، بنستخدمه لبناء رابط الإشعار
+    relatedPost: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Post',
     },
     isRead: {
       type: Boolean,

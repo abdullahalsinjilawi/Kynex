@@ -51,10 +51,39 @@ const addCommentValidators = [
   handleValidationErrors,
 ];
 
+// --- المنتدى ---
+const createPostValidators = [
+  body('title')
+    .trim()
+    .notEmpty()
+    .withMessage(msg('postTitleRequired'))
+    .isLength({ max: 180 })
+    .withMessage(msg('postTitleTooLong')),
+  body('content')
+    .trim()
+    .notEmpty()
+    .withMessage(msg('postContentRequired'))
+    .isLength({ max: 50000 })
+    .withMessage(msg('postContentTooLong')),
+  handleValidationErrors,
+];
+
+const postCommentValidators = [
+  body('content')
+    .trim()
+    .notEmpty()
+    .withMessage(msg('commentContentRequired'))
+    .isLength({ max: 2000 })
+    .withMessage(msg('commentTooLong')),
+  handleValidationErrors,
+];
+
 module.exports = {
   handleValidationErrors,
   registerValidators,
   loginValidators,
   createProjectValidators,
   addCommentValidators,
+  createPostValidators,
+  postCommentValidators,
 };

@@ -5,6 +5,7 @@ const {
   toggleBanUser,
   toggleVerifiedUser,
   getAllProjectsAdmin,
+  getAllPostsAdmin,
   toggleHideProject,
   toggleFeaturedProject,
   getAllReports,
@@ -23,6 +24,8 @@ router.put('/users/:id/verify', toggleVerifiedUser);
 router.get('/projects', getAllProjectsAdmin);
 router.put('/projects/:id/hide', toggleHideProject);
 router.put('/projects/:id/feature', toggleFeaturedProject);
+
+router.get('/posts', getAllPostsAdmin);
 
 router.get('/reports', getAllReports);
 router.put('/reports/:id', updateReportStatus);

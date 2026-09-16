@@ -89,32 +89,6 @@ const getApiKeyStatus = async (req, res, next) => {
 
 // @route  GET /api/users/:id
 // @desc   عرض بروفايل عام لأي مستخدم (بدون بيانات حساسة)
-// @route  GET /api/users/recent
-// @desc   آخر الأعضاء اللي انضموا (للصفحة الرئيسية) - بيانات عامة آمنة بس، بدون
-// حسابات محظورة أو بفترة حذف مؤجل (قسم ترحيبي، منطقي نستثنيهم منه)
-const getRecentMembers = async (req, res, next) => {
-  try {
-    const limit = Math.min(Number(req.query.limit) || 8, 20);
-    const users = await User.find({ isBanned: false, deletedAt: null })
-      .select('name avatarUrl verified createdAt')
-      .sort({ createdAt: -1 })
-      .limit(limit);
-
-    res.status(200).json({
-      success: true,
-      users: users.map((u) => ({
-        id: u._id,
-        name: u.name,
-        avatarUrl: u.avatarUrl,
-        verified: u.verified,
-        createdAt: u.createdAt,
-      })),
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
 const getPublicProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
@@ -190,7 +164,6 @@ module.exports = {
   generateApiKey,
   getApiKeyStatus,
   getPublicProfile,
-  getRecentMembers,
   requestAccountDeletion,
   restoreAccount,
 };

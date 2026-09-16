@@ -18,6 +18,7 @@ const getNotifications = async (req, res, next) => {
   try {
     const notifications = await Notification.find({ recipient: req.user._id })
       .populate('relatedProject', 'slug name')
+      .populate('relatedPost', 'slug title')
       .sort({ createdAt: -1 })
       .limit(50);
 
