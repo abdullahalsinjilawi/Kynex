@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../api/client';
-import FileTree from '../components/FileTree';
+import PageHeader from '../components/PageHeader';
+import FormError from '../components/FormError';
+import Spinner from '../components/Spinner';
+import MarkdownEditor from '../components/MarkdownEditor';
 import { formatBytes } from '../utils/format';
 
 const CATEGORIES = [
@@ -13,14 +16,27 @@ const CATEGORIES = [
   { value: 'other', labelKey: 'categories.other' },
 ];
 
+/** قسم واحد من الفورم: عنوان + شرح سطر + محتواه داخل بطاقة. */
+function Section({ title, description, children }) {
+  return (
+    <section className="panel p-5 sm:p-6">
+      <h2 className="font-display text-base font-semibold">{title}</h2>
+      {description && <p className="mt-1 text-sm leading-relaxed text-muted">{description}</p>}
+      <div className="mt-5 flex flex-col gap-4">{children}</div>
+    </section>
+  );
+}
+
 export default function Upload() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [licenses, setLicenses] = useState({ types: [], details: {} });
-  const [files, setFiles] = useState([]); // مصفوفة File عادية (من input files أو input folder)
+  const [files, setFiles] = useState([]); // مصفوفة File عادية (من input files أو input folder أو السحب والإفلات)
+  const [dragging, setDragging] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const dragDepth = useRef(0); // عدّاد: dragenter/dragleave بتضربوا مع كل عنصر ابن
 
   const [form, setForm] = useState({
     name: '',
@@ -41,13 +57,14 @@ export default function Upload() {
 
   const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
-  // من input الملفات المفردة أو من input المجلد - بكلا الحالتين منحول FileList لمصفوفة
-  // ونضيفها لللي already مختار (بدل ما نستبدلها) حتى تقدر تمزج ملفات مفردة + مجلد
+  // من input الملفات المفردة أو من input المجلد أو من الإفلات - بكل الحالات منحوّل
+  // FileList لمصفوفة ومنضيفها لللي مختار أصلاً (بدل ما نستبدلها) حتى تقدر تمزج
   const addFiles = (fileList) => {
     const incoming = Array.from(fileList);
-    setFiles((prev) => [...prev, ...incoming]);
+    if (incoming.length) setFiles((prev) => [...prev, ...incoming]);
   };
 
+  const removeFile = (index) => setFiles((prev) => prev.filter((_, i) => i !== index));
   const clearFiles = () => setFiles([]);
 
   const totalSize = files.reduce((sum, f) => sum + f.size, 0);
@@ -58,6 +75,7 @@ export default function Upload() {
 
     if (!form.name.trim() || !form.description.trim() || !form.language.trim()) {
       setError(t('upload.requiredFields'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -89,208 +107,286 @@ export default function Upload() {
   const activeLicense = licenses.details[form.licenseType];
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <h1 className="mb-1 text-xl font-semibold">{t('upload.title')}</h1>
-      <p className="mb-6 text-sm text-ink-muted light:text-paper-muted">{t('upload.subtitle')}</p>
+    <div className="animate-page-in">
+      <PageHeader title={t('upload.title')} description={t('upload.subtitle')} />
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">
-            {t('upload.projectName')}
-          </label>
-          <input
-            value={form.name}
-            onChange={(e) => update('name', e.target.value)}
-            placeholder={t('upload.projectNamePlaceholder')}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-8 sm:px-6">
+        {error && <FormError>{error}</FormError>}
 
-        <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.description')}</label>
-          <textarea
-            value={form.description}
-            onChange={(e) => update('description', e.target.value)}
-            rows={3}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">
-            {t('upload.readme')} <span className="font-normal text-ink-muted light:text-paper-muted">{t('upload.readmeFormat')}</span>
-          </label>
-          <textarea
-            value={form.readme}
-            onChange={(e) => update('readme', e.target.value)}
-            rows={5}
-            placeholder={t('upload.readmePlaceholder')}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 font-mono text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+        <Section title={t('upload.sectionInfo')} description={t('upload.sectionInfoDesc')}>
           <div>
-            <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.category')}</label>
+            <label className="field-label" htmlFor="project-name">
+              {t('upload.projectName')}
+            </label>
+            <input
+              id="project-name"
+              value={form.name}
+              onChange={(e) => update('name', e.target.value)}
+              placeholder={t('upload.projectNamePlaceholder')}
+              className="input"
+            />
+          </div>
+
+          <div>
+            <label className="field-label" htmlFor="project-description">
+              {t('upload.description')}
+            </label>
+            <textarea
+              id="project-description"
+              value={form.description}
+              onChange={(e) => update('description', e.target.value)}
+              rows={3}
+              placeholder={t('upload.descriptionPlaceholder')}
+              className="input"
+            />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="field-label" htmlFor="project-category">
+                {t('upload.category')}
+              </label>
+              <select
+                id="project-category"
+                value={form.category}
+                onChange={(e) => update('category', e.target.value)}
+                className="input"
+              >
+                {CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {t(c.labelKey)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="field-label" htmlFor="project-language">
+                {t('upload.language')}
+              </label>
+              <input
+                id="project-language"
+                value={form.language}
+                onChange={(e) => update('language', e.target.value)}
+                placeholder="Python"
+                className="input font-mono"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="field-label" htmlFor="project-tags">
+              {t('upload.tags')}
+            </label>
+            <input
+              id="project-tags"
+              value={form.tags}
+              onChange={(e) => update('tags', e.target.value)}
+              placeholder={t('upload.tagsPlaceholder')}
+              className="input font-mono"
+            />
+          </div>
+        </Section>
+
+        <Section title={t('upload.sectionDocs')} description={t('upload.sectionDocsDesc')}>
+          <div>
+            <span className="field-label">
+              {t('upload.readme')}{' '}
+              <span className="font-normal opacity-70">{t('upload.readmeFormat')}</span>
+            </span>
+            <div className="mt-1.5">
+              <MarkdownEditor
+                id="project-readme"
+                value={form.readme}
+                onChange={(value) => update('readme', value)}
+                placeholder={t('upload.readmePlaceholder')}
+                rows={9}
+                maxLength={20000}
+              />
+            </div>
+          </div>
+        </Section>
+
+        <Section title={t('upload.sectionLicense')} description={t('upload.sectionLicenseDesc')}>
+          <div>
+            <label className="field-label" htmlFor="project-license">
+              {t('upload.license')}
+            </label>
             <select
-              value={form.category}
-              onChange={(e) => update('category', e.target.value)}
-              className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+              id="project-license"
+              value={form.licenseType}
+              onChange={(e) => update('licenseType', e.target.value)}
+              className="input"
             >
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {t(c.labelKey)}
+              {licenses.types.map((type) => (
+                <option key={type} value={type}>
+                  {licenses.details[type]?.name || type}
                 </option>
               ))}
             </select>
+            {activeLicense && (
+              <p className="mt-2.5 rounded-xl border border-line-soft bg-elevated px-3.5 py-3 text-xs leading-relaxed text-muted">
+                {activeLicense.summary}
+              </p>
+            )}
           </div>
-          <div>
-            <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.language')}</label>
-            <input
-              value={form.language}
-              onChange={(e) => update('language', e.target.value)}
-              placeholder="Python"
-              className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
-            />
-          </div>
-        </div>
 
-        <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.tags')}</label>
-          <input
-            value={form.tags}
-            onChange={(e) => update('tags', e.target.value)}
-            placeholder={t('upload.tagsPlaceholder')}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
-          />
-        </div>
-
-        {/* الترخيص */}
-        <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.license')}</label>
-          <select
-            value={form.licenseType}
-            onChange={(e) => update('licenseType', e.target.value)}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
-          >
-            {licenses.types.map((t2) => (
-              <option key={t2} value={t2}>
-                {licenses.details[t2]?.name || t2}
-              </option>
-            ))}
-          </select>
-          {activeLicense && (
-            <p className="mt-2 rounded-lg bg-ink-surface p-3 text-xs leading-relaxed text-ink-muted light:bg-paper-surface light:text-paper-muted">
-              {activeLicense.summary}
-            </p>
-          )}
           {form.licenseType === 'Custom' && (
             <textarea
               value={form.licenseCustomText}
               onChange={(e) => update('licenseCustomText', e.target.value)}
-              rows={4}
+              rows={5}
               placeholder={t('upload.licenseCustomPlaceholder')}
-              className="mt-2 w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+              className="input font-mono text-[13px]"
             />
           )}
-        </div>
+        </Section>
 
-        {/* الملفات */}
-        <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.files')}</label>
+        <Section title={t('upload.sectionFiles')} description={t('upload.sectionFilesDesc')}>
+          {/* منطقة السحب والإفلات: نفس الصندوق بيشتغل كـ drop target وكمان جواته زرّين */}
+          <div
+            onDragEnter={(e) => {
+              e.preventDefault();
+              dragDepth.current += 1;
+              setDragging(true);
+            }}
+            onDragOver={(e) => e.preventDefault()}
+            onDragLeave={() => {
+              dragDepth.current -= 1;
+              if (dragDepth.current <= 0) setDragging(false);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              dragDepth.current = 0;
+              setDragging(false);
+              addFiles(e.dataTransfer.files);
+            }}
+            className={`rounded-2xl border border-dashed p-4 transition-colors ${
+              dragging ? 'border-brand bg-brand/10' : 'border-line'
+            }`}
+          >
+            {dragging ? (
+              <p className="py-10 text-center text-sm font-medium text-brand-light">
+                {t('upload.dropHere')}
+              </p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-line bg-elevated px-4 py-6 text-center transition-colors hover:border-brand/50">
+                  <svg className="mb-1 h-6 w-6 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M14 3v5h5M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+                  </svg>
+                  <span className="text-sm font-semibold">{t('upload.singleFiles')}</span>
+                  <span className="text-xs leading-relaxed text-muted">{t('upload.singleFilesHint')}</span>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) => {
+                      addFiles(e.target.files);
+                      e.target.value = ''; // يسمح تختار نفس الملف مرة تانية لو حذفته غلط
+                    }}
+                    className="sr-only"
+                  />
+                </label>
 
-          <div className="grid grid-cols-2 gap-2">
-            <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-ink-border bg-ink-surface px-3 py-4 text-center text-xs text-ink-muted hover:border-violet-500/50 light:border-paper-border light:bg-paper-surface light:text-paper-muted">
-              <span className="text-sm font-medium text-ink-text light:text-paper-text">{t('upload.singleFiles')}</span>
-              {t('upload.singleFilesHint')}
-              <input
-                type="file"
-                multiple
-                onChange={(e) => {
-                  addFiles(e.target.files);
-                  e.target.value = ''; // يسمح تختار نفس الملف مرة تانية لو حذفته غلط
-                }}
-                className="hidden"
-              />
-            </label>
-
-            <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-ink-border bg-ink-surface px-3 py-4 text-center text-xs text-ink-muted hover:border-violet-500/50 light:border-paper-border light:bg-paper-surface light:text-paper-muted">
-              <span className="text-sm font-medium text-ink-text light:text-paper-text">{t('upload.wholeFolder')}</span>
-              {t('upload.wholeFolderHint')}
-              <input
-                type="file"
-                multiple
-                // webkitdirectory مو خاصية React قياسية، فبنحطها مباشرة على عنصر الـ
-                // DOM عن طريق ref حتى تشتغل بثبات بغض النظر عن نسخة React (متصفحات
-                // Chromium وSafari بتدعمها؛ فايرفوكس بيتجاهلها ويرجع لاختيار ملفات عادي)
-                ref={(el) => {
-                  if (el) {
-                    el.setAttribute('webkitdirectory', 'true');
-                    el.setAttribute('directory', 'true');
-                  }
-                }}
-                onChange={(e) => {
-                  addFiles(e.target.files);
-                  e.target.value = '';
-                }}
-                className="hidden"
-              />
-            </label>
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-line bg-elevated px-4 py-6 text-center transition-colors hover:border-brand/50">
+                  <svg className="mb-1 h-6 w-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  </svg>
+                  <span className="text-sm font-semibold">{t('upload.wholeFolder')}</span>
+                  <span className="text-xs leading-relaxed text-muted">{t('upload.wholeFolderHint')}</span>
+                  <input
+                    type="file"
+                    multiple
+                    // webkitdirectory مو خاصية React قياسية، فبنحطها مباشرة على عنصر الـ
+                    // DOM عن طريق ref حتى تشتغل بثبات بغض النظر عن نسخة React (متصفحات
+                    // Chromium وSafari بتدعمها؛ فايرفوكس بيتجاهلها ويرجع لاختيار ملفات عادي)
+                    ref={(el) => {
+                      if (el) {
+                        el.setAttribute('webkitdirectory', 'true');
+                        el.setAttribute('directory', 'true');
+                      }
+                    }}
+                    onChange={(e) => {
+                      addFiles(e.target.files);
+                      e.target.value = '';
+                    }}
+                    className="sr-only"
+                  />
+                </label>
+              </div>
+            )}
           </div>
 
-          {files.length > 0 && (
-            <div className="mt-3 overflow-hidden rounded-lg border border-ink-border light:border-paper-border">
-              <div className="flex items-center justify-between border-b border-ink-border bg-ink-surface px-3 py-2 text-xs text-ink-muted light:border-paper-border light:bg-paper-surface light:text-paper-muted">
-                <span>
+          {files.length === 0 ? (
+            <p className="text-xs text-muted">{t('upload.filesEmptyHint')}</p>
+          ) : (
+            <div className="overflow-hidden rounded-xl border border-line">
+              <div className="flex items-center justify-between gap-3 border-b border-line bg-elevated px-3.5 py-2.5 text-xs text-muted">
+                <span className="tnum">
                   {t('common.fileCount', { count: files.length })} · {formatBytes(totalSize)}
                 </span>
-                <button type="button" onClick={clearFiles} className="text-red-400 hover:underline">
+                <button type="button" onClick={clearFiles} className="font-medium text-danger hover:underline">
                   {t('upload.clearAll')}
                 </button>
               </div>
-              <div className="max-h-64 overflow-y-auto">
-                <FileTree
-                  files={files.map((f) => ({ relativePath: f.webkitRelativePath || f.name, size: f.size }))}
-                  renderLeaf={(file, depth) => (
-                    <div
-                      style={{ paddingRight: `${depth * 18 + 16}px` }}
-                      className="flex items-center justify-between gap-2 py-1.5 pl-4 text-xs"
-                    >
-                      <span className="truncate font-mono text-ink-muted light:text-paper-muted">
-                        {file.relativePath.split('/').pop()}
-                      </span>
-                      <span className="shrink-0 text-ink-muted light:text-paper-muted">{formatBytes(file.size)}</span>
-                    </div>
-                  )}
-                />
-              </div>
+              <ul className="max-h-72 overflow-y-auto">
+                {files.map((file, index) => (
+                  <li
+                    key={`${file.webkitRelativePath || file.name}-${index}`}
+                    className="flex items-center justify-between gap-3 border-b border-line-soft px-3.5 py-2 text-xs last:border-b-0"
+                  >
+                    <span className="truncate font-mono text-muted" title={file.webkitRelativePath || file.name}>
+                      {file.webkitRelativePath || file.name}
+                    </span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="tnum text-muted">{formatBytes(file.size)}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(index)}
+                        aria-label={t('upload.removeFile')}
+                        className="rounded-md p-1 text-muted transition-colors hover:bg-danger/10 hover:text-danger"
+                      >
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                          <path d="M18 6 6 18M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
-        </div>
-
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        </Section>
 
         {loading && (
-          <div>
-            <div className="mb-1 flex justify-between text-xs text-ink-muted light:text-paper-muted">
+          <div className="panel p-4">
+            <div className="mb-2 flex justify-between text-xs text-muted">
               <span>{t('upload.uploading')}</span>
-              <span className="font-mono">{progress}%</span>
+              <span className="tnum font-display">{progress}%</span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink-surface light:bg-paper-surface">
+            <div
+              className="h-1.5 w-full overflow-hidden rounded-full bg-elevated"
+              role="progressbar"
+              aria-valuenow={progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
               <div
-                className="h-full rounded-full bg-violet-500 transition-all duration-300"
+                className="h-full rounded-full bg-gradient-to-r from-brand to-accent transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-lg bg-violet-500 py-2.5 text-sm font-medium text-white hover:bg-violet-600 disabled:opacity-60"
-        >
-          {loading ? `${t('upload.uploading')} ${progress}%` : t('upload.submit')}
+        <button type="submit" disabled={loading} className="btn btn-primary btn-lg">
+          {loading ? (
+            <>
+              <Spinner />
+              {`${t('upload.uploading')} ${progress}%`}
+            </>
+          ) : (
+            t('upload.submit')
+          )}
         </button>
       </form>
     </div>

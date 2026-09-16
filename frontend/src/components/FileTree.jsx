@@ -3,16 +3,19 @@ import { buildFileTree, sortedEntries } from '../utils/fileTree';
 
 function FolderIcon() {
   return (
-    <svg className="h-4 w-4 shrink-0 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg className="h-4 w-4 shrink-0 text-brand-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
     </svg>
   );
 }
 
+// السهم المقفول بيشاور يمين بالإنجليزي ويسار بالعربي، فبنقلبه حسب اتجاه الصفحة
 function ChevronIcon({ open }) {
   return (
     <svg
-      className={`h-3.5 w-3.5 shrink-0 text-ink-muted transition-transform duration-150 light:text-paper-muted ${open ? '-rotate-90' : ''}`}
+      className={`h-3.5 w-3.5 shrink-0 text-muted transition-transform duration-150 ${
+        open ? '-rotate-90' : 'ltr:rotate-180'
+      }`}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -37,13 +40,13 @@ function TreeNode({ node, depth, renderLeaf, defaultOpenDepth }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        style={{ paddingRight: `${depth * 18 + 16}px` }}
-        className="flex w-full items-center gap-2 py-2 pl-4 text-sm transition-colors hover:bg-ink/40 light:hover:bg-paper"
+        style={{ paddingInlineStart: `${depth * 18 + 16}px` }}
+        className="flex w-full items-center gap-2 py-2 pe-4 text-sm transition-colors hover:bg-fg/5"
       >
         <ChevronIcon open={open} />
         <FolderIcon />
         <span className="font-mono">{node.name}</span>
-        <span className="text-xs text-ink-muted light:text-paper-muted">
+        <span className="text-xs text-muted">
           ({Object.keys(node.children).length})
         </span>
       </button>

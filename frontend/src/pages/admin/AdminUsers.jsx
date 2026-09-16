@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../api/client';
 import { formatRelativeTime } from '../../utils/format';
+import { ListSkeleton } from '../../components/Skeleton';
+import EmptyState from '../../components/EmptyState';
+import Avatar from '../../components/Avatar';
 
 export default function AdminUsers() {
   const { t } = useTranslation();
@@ -41,49 +44,48 @@ export default function AdminUsers() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder={t('admin.users.searchPlaceholder')}
-        className="mb-4 w-full max-w-sm rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+        className="input input-sm mb-5 max-w-sm"
       />
 
       {loading ? (
-        <p className="text-sm text-ink-muted light:text-paper-muted">{t('common.loading')}</p>
+        <ListSkeleton count={6} />
+      ) : users.length === 0 ? (
+        <EmptyState icon="search" title={t('admin.users.noResults')} />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-ink-border light:border-paper-border">
+        <div className="overflow-hidden rounded-xl border border-line">
           {users.map((u, i) => (
             <div
               key={u._id}
-              className={`flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm ${
-                i !== 0 ? 'border-t border-ink-border light:border-paper-border' : ''
+              className={`flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm transition-colors hover:bg-fg/[0.03] ${
+                i !== 0 ? 'border-t border-line' : ''
               }`}
             >
-              <div>
-                <p className="flex items-center gap-2 font-medium">
-                  {u.name}
-                  {u.verified && <span className="text-xs text-violet-400">{t('admin.users.verified')}</span>}
-                  {u.isBanned && <span className="text-xs text-red-400">{t('admin.users.banned')}</span>}
-                  {u.role === 'admin' && (
-                    <span className="text-xs text-ink-muted light:text-paper-muted">{t('admin.users.adminRole')}</span>
-                  )}
-                </p>
-                <p className="text-xs text-ink-muted light:text-paper-muted">
-                  {u.email} · {t('admin.users.joinedPrefix')} {formatRelativeTime(u.createdAt)}
-                </p>
+              <div className="flex min-w-0 items-center gap-3">
+                <Avatar name={u.name} id={u._id} size="md" />
+                <div className="min-w-0">
+                  <p className="flex flex-wrap items-center gap-1.5 font-medium">
+                    <span className="truncate">{u.name}</span>
+                    {u.verified && <span className="badge badge-accent">{t('admin.users.verified')}</span>}
+                    {u.isBanned && <span className="badge badge-danger">{t('admin.users.banned')}</span>}
+                    {u.role === 'admin' && <span className="badge badge-brand">{t('admin.users.adminRole')}</span>}
+                  </p>
+                  <p className="truncate text-xs text-muted">
+                    {u.email} · {t('admin.users.joinedPrefix')} {formatRelativeTime(u.createdAt)}
+                  </p>
+                </div>
               </div>
 
               {u.role !== 'admin' && (
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleToggleVerify(u)}
-                    className="rounded-lg border border-ink-border px-2.5 py-1 text-xs hover:bg-ink-surface light:border-paper-border light:hover:bg-paper-surface"
+                    className="btn btn-secondary btn-sm"
                   >
                     {u.verified ? t('admin.users.revokeVerification') : t('admin.users.grantVerification')}
                   </button>
                   <button
                     onClick={() => handleToggleBan(u)}
-                    className={`rounded-lg px-2.5 py-1 text-xs ${
-                      u.isBanned
-                        ? 'bg-violet-500/10 text-violet-400 hover:bg-violet-500/20'
-                        : 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                    }`}
+                    className={`btn btn-sm ${u.isBanned ? 'btn-secondary' : 'btn-danger'}`}
                   >
                     {u.isBanned ? t('admin.users.unban') : t('admin.users.ban')}
                   </button>

@@ -4,6 +4,10 @@ import { useTranslation } from 'react-i18next';
 import apiClient from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import FileTree from '../components/FileTree';
+import PageHeader from '../components/PageHeader';
+import FormError from '../components/FormError';
+import Spinner from '../components/Spinner';
+import MarkdownEditor from '../components/MarkdownEditor';
 import { formatBytes } from '../utils/format';
 
 const CATEGORIES = [
@@ -113,13 +117,13 @@ export default function EditProject() {
   };
 
   if (loadingProject) {
-    return <div className="p-10 text-center text-sm text-ink-muted light:text-paper-muted">{t('common.loading')}</div>;
+    return <div className="p-10 text-center text-sm text-muted">{t('common.loading')}</div>;
   }
 
   if (notFoundOrForbidden || !originalProject) {
     return (
-      <div className="p-10 text-center text-sm text-ink-muted light:text-paper-muted">
-        {t('editProject.forbidden')}
+      <div className="mx-auto max-w-md px-4 py-24 text-center">
+        <p className="text-sm text-muted">{t('editProject.forbidden')}</p>
       </div>
     );
   }
@@ -127,53 +131,57 @@ export default function EditProject() {
   const activeLicense = licenses.details[form.licenseType];
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <h1 className="mb-1 text-xl font-semibold">{t('editProject.title')}</h1>
-      <p className="mb-6 text-sm text-ink-muted light:text-paper-muted">
-        <Link to={`/project/${slug}`} className="text-violet-400 hover:underline">
-          {originalProject.name}
-        </Link>
-      </p>
+    <div className="animate-page-in">
+      <PageHeader
+        title={t('editProject.title')}
+        description={
+          <Link to={`/project/${slug}`} className="link-brand">
+            {originalProject.name}
+          </Link>
+        }
+      />
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-8 sm:px-6">
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.projectName')}</label>
+          <label className="field-label">{t('upload.projectName')}</label>
           <input
             value={form.name}
             onChange={(e) => update('name', e.target.value)}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+            className="input"
           />
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.description')}</label>
+          <label className="field-label">{t('upload.description')}</label>
           <textarea
             value={form.description}
             onChange={(e) => update('description', e.target.value)}
             rows={3}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+            className="input"
           />
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">
-            {t('upload.readme')} <span className="font-normal text-ink-muted light:text-paper-muted">{t('upload.readmeFormat')}</span>
-          </label>
-          <textarea
-            value={form.readme}
-            onChange={(e) => update('readme', e.target.value)}
-            rows={5}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 font-mono text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
-          />
+          <span className="field-label">
+            {t('upload.readme')} <span className="font-normal text-muted">{t('upload.readmeFormat')}</span>
+          </span>
+          <div className="mt-1.5">
+            <MarkdownEditor
+              value={form.readme}
+              onChange={(value) => update('readme', value)}
+              rows={9}
+              maxLength={20000}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.category')}</label>
+            <label className="field-label">{t('upload.category')}</label>
             <select
               value={form.category}
               onChange={(e) => update('category', e.target.value)}
-              className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+              className="input"
             >
               {CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>
@@ -183,30 +191,30 @@ export default function EditProject() {
             </select>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.language')}</label>
+            <label className="field-label">{t('upload.language')}</label>
             <input
               value={form.language}
               onChange={(e) => update('language', e.target.value)}
-              className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+              className="input"
             />
           </div>
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.tags')}</label>
+          <label className="field-label">{t('upload.tags')}</label>
           <input
             value={form.tags}
             onChange={(e) => update('tags', e.target.value)}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+            className="input"
           />
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('upload.license')}</label>
+          <label className="field-label">{t('upload.license')}</label>
           <select
             value={form.licenseType}
             onChange={(e) => update('licenseType', e.target.value)}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+            className="input"
           >
             {licenses.types.map((t2) => (
               <option key={t2} value={t2}>
@@ -215,7 +223,7 @@ export default function EditProject() {
             ))}
           </select>
           {activeLicense && (
-            <p className="mt-2 rounded-lg bg-ink-surface p-3 text-xs leading-relaxed text-ink-muted light:bg-paper-surface light:text-paper-muted">
+            <p className="mt-2.5 rounded-xl border border-line-soft bg-elevated px-3.5 py-3 text-xs leading-relaxed text-muted">
               {activeLicense.summary}
             </p>
           )}
@@ -224,26 +232,26 @@ export default function EditProject() {
               value={form.licenseCustomText}
               onChange={(e) => update('licenseCustomText', e.target.value)}
               rows={4}
-              className="mt-2 w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+              className="input mt-2"
             />
           )}
         </div>
 
         {/* الملفات الحالية (للعرض بس) */}
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">
+          <label className="field-label">
             {t('editProject.currentFiles', { count: originalProject.files?.length || 0 })}
           </label>
-          <div className="max-h-48 overflow-y-auto rounded-lg border border-ink-border light:border-paper-border">
+          <div className="max-h-48 overflow-y-auto rounded-lg border border-line">
             <FileTree
               files={originalProject.files || []}
               renderLeaf={(file, depth) => (
                 <div
-                  style={{ paddingRight: `${depth * 18 + 16}px` }}
-                  className="flex items-center justify-between gap-2 py-1.5 pl-4 text-xs"
+                  style={{ paddingInlineStart: `${depth * 18 + 16}px` }}
+                  className="flex items-center justify-between gap-2 py-1.5 pe-4 text-xs"
                 >
-                  <span className="truncate font-mono text-ink-muted light:text-paper-muted">{file.filename}</span>
-                  <span className="shrink-0 text-ink-muted light:text-paper-muted">{formatBytes(file.size)}</span>
+                  <span className="truncate font-mono text-muted">{file.filename}</span>
+                  <span className="shrink-0 text-muted">{formatBytes(file.size)}</span>
                 </div>
               )}
             />
@@ -252,16 +260,16 @@ export default function EditProject() {
 
         {/* رفع ملفات جديدة (اختياري - بتستبدل كل الملفات الحالية) */}
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">
+          <label className="field-label">
             {t('editProject.replaceFiles')} <span className="font-normal">{t('editProject.optional')}</span>
           </label>
-          <p className="mb-2 text-xs leading-relaxed text-ink-muted light:text-paper-muted">
+          <p className="mb-2 text-xs leading-relaxed text-muted">
             {t('editProject.replaceFilesHint')}
           </p>
 
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-ink-border bg-ink-surface px-3 py-4 text-center text-xs text-ink-muted hover:border-violet-500/50 light:border-paper-border light:bg-paper-surface light:text-paper-muted">
-              <span className="text-sm font-medium text-ink-text light:text-paper-text">{t('upload.singleFiles')}</span>
+            <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-line bg-elevated px-4 py-5 text-center text-xs text-muted transition-colors hover:border-brand/50">
+              <span className="text-sm font-medium text-fg">{t('upload.singleFiles')}</span>
               <input
                 type="file"
                 multiple
@@ -269,11 +277,11 @@ export default function EditProject() {
                   addFiles(e.target.files);
                   e.target.value = '';
                 }}
-                className="hidden"
+                className="sr-only"
               />
             </label>
-            <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-ink-border bg-ink-surface px-3 py-4 text-center text-xs text-ink-muted hover:border-violet-500/50 light:border-paper-border light:bg-paper-surface light:text-paper-muted">
-              <span className="text-sm font-medium text-ink-text light:text-paper-text">{t('upload.wholeFolder')}</span>
+            <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-line bg-elevated px-4 py-5 text-center text-xs text-muted transition-colors hover:border-brand/50">
+              <span className="text-sm font-medium text-fg">{t('upload.wholeFolder')}</span>
               <input
                 type="file"
                 multiple
@@ -287,16 +295,16 @@ export default function EditProject() {
                   addFiles(e.target.files);
                   e.target.value = '';
                 }}
-                className="hidden"
+                className="sr-only"
               />
             </label>
           </div>
 
           {newFiles.length > 0 && (
-            <div className="mt-3 overflow-hidden rounded-lg border border-violet-500/30">
-              <div className="flex items-center justify-between border-b border-violet-500/30 bg-violet-500/5 px-3 py-2 text-xs text-violet-400">
+            <div className="mt-3 overflow-hidden rounded-lg border border-brand/30">
+              <div className="flex items-center justify-between border-b border-brand/30 bg-brand/8 px-3 py-2 text-xs text-brand-light">
                 <span>{t('editProject.newFilesSummary', { count: newFiles.length, size: formatBytes(newFilesTotalSize) })}</span>
-                <button type="button" onClick={clearNewFiles} className="text-red-400 hover:underline">
+                <button type="button" onClick={clearNewFiles} className="text-danger hover:underline">
                   {t('common.cancel')}
                 </button>
               </div>
@@ -305,13 +313,13 @@ export default function EditProject() {
                   files={newFiles.map((f) => ({ relativePath: f.webkitRelativePath || f.name, size: f.size }))}
                   renderLeaf={(file, depth) => (
                     <div
-                      style={{ paddingRight: `${depth * 18 + 16}px` }}
-                      className="flex items-center justify-between gap-2 py-1.5 pl-4 text-xs"
+                      style={{ paddingInlineStart: `${depth * 18 + 16}px` }}
+                      className="flex items-center justify-between gap-2 py-1.5 pe-4 text-xs"
                     >
-                      <span className="truncate font-mono text-ink-muted light:text-paper-muted">
+                      <span className="truncate font-mono text-muted">
                         {file.relativePath.split('/').pop()}
                       </span>
-                      <span className="shrink-0 text-ink-muted light:text-paper-muted">{formatBytes(file.size)}</span>
+                      <span className="shrink-0 text-muted">{formatBytes(file.size)}</span>
                     </div>
                   )}
                 />
@@ -320,17 +328,23 @@ export default function EditProject() {
           )}
         </div>
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <FormError>{error}</FormError>}
 
         {saving && (
           <div>
-            <div className="mb-1 flex justify-between text-xs text-ink-muted light:text-paper-muted">
+            <div className="mb-1 flex justify-between text-xs text-muted">
               <span>{t('editProject.saving')}</span>
               <span className="font-mono">{progress}%</span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink-surface light:bg-paper-surface">
+            <div
+              className="h-1.5 w-full overflow-hidden rounded-full bg-elevated"
+              role="progressbar"
+              aria-valuenow={progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
               <div
-                className="h-full rounded-full bg-violet-500 transition-all duration-300"
+                className="h-full rounded-full bg-gradient-to-r from-brand to-accent transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -341,14 +355,21 @@ export default function EditProject() {
           <button
             type="submit"
             disabled={saving}
-            className="flex-1 rounded-lg bg-violet-500 py-2.5 text-sm font-medium text-white hover:bg-violet-600 disabled:opacity-60"
+            className="btn btn-primary flex-1"
           >
-            {saving ? `${t('editProject.saving')} ${progress}%` : t('editProject.saveChanges')}
+            {saving ? (
+              <>
+                <Spinner />
+                {`${t('editProject.saving')} ${progress}%`}
+              </>
+            ) : (
+              t('editProject.saveChanges')
+            )}
           </button>
           <button
             type="button"
             onClick={() => navigate(`/project/${slug}`)}
-            className="rounded-lg border border-ink-border px-4 py-2.5 text-sm hover:bg-ink-surface light:border-paper-border light:hover:bg-paper-surface"
+            className="btn btn-secondary"
           >
             {t('common.cancel')}
           </button>

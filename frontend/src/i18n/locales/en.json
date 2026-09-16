@@ -33,10 +33,12 @@
       "monthsAgo_other": "{{count}} months ago",
       "yearsAgo_one": "{{count}} year ago",
       "yearsAgo_other": "{{count}} years ago"
-    }
+    },
+    "viewCountLabel": "Views",
+    "verified": "Verified account"
   },
   "header": {
-    "searchPlaceholder": "Search projects, languages, tags...",
+    "searchPlaceholder": "Search projects, languages, tags…",
     "toggleTheme": "Toggle theme",
     "messages": "Messages",
     "notifications": "Notifications",
@@ -46,7 +48,11 @@
     "logout": "Log out",
     "login": "Log in",
     "register": "Sign up",
-    "language": "العربية"
+    "language": "العربية",
+    "switchLanguage": "Switch language",
+    "accountMenu": "Account menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "categories": {
     "trainingCode": "Training code",
@@ -64,7 +70,8 @@
     "tabs": {
       "users": "Users",
       "projects": "Projects",
-      "reports": "Reports"
+      "reports": "Reports",
+      "posts": "Forum"
     },
     "users": {
       "searchPlaceholder": "Search by name or email...",
@@ -76,7 +83,8 @@
       "revokeVerification": "Revoke verification",
       "grantVerification": "Grant verification",
       "unban": "Unban",
-      "ban": "Ban"
+      "ban": "Ban",
+      "noResults": "No matching users."
     },
     "projects": {
       "searchPlaceholder": "Search by project name...",
@@ -87,7 +95,8 @@
       "unfeature": "Unfeature",
       "feature": "Feature",
       "show": "Show",
-      "hide": "Hide"
+      "hide": "Hide",
+      "noResults": "No matching projects."
     },
     "reports": {
       "status": {
@@ -100,7 +109,8 @@
       "target": {
         "comment": "Comment",
         "project": "Project",
-        "user": "User"
+        "user": "User",
+        "post": "Post"
       },
       "empty": "No reports in this status.",
       "reportedBy": "Reported by:",
@@ -108,6 +118,17 @@
       "markReviewed": "Mark reviewed",
       "dismiss": "Dismiss report",
       "banOffender": "Ban the offender"
+    },
+    "posts": {
+      "searchPlaceholder": "Search post titles...",
+      "noResults": "No matching posts",
+      "hidden": "Hidden",
+      "deleted": "Deleted",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "hide": "Hide",
+      "show": "Show",
+      "counters": "{{reactions}} reactions · {{comments}} comments"
     }
   },
   "comingSoon": {
@@ -144,7 +165,9 @@
     "s7Title": "7. Bans and account suspension",
     "s7Body": "The platform's administration reserves the right to ban any account that violates these terms, based on a review of user reports, without a mandatory prior notice.",
     "s8Title": "8. Contact",
-    "s8Body": "For any inquiry related to these terms or your personal data, contact us at [contact email — fill this in]."
+    "s8Body": "For any inquiry related to these terms or your personal data, contact us at [contact email — fill this in].",
+    "subtitle": "What you can expect from the platform, and how we handle your data.",
+    "tableOfContents": "Sections"
   },
   "settings": {
     "title": "Settings",
@@ -168,26 +191,44 @@
     "deleteAccountDesc": "Account deletion is delayed by 30 days before it becomes permanent — you can change your mind during that window.",
     "confirmPasswordPlaceholder": "Enter your password to confirm",
     "deleteAccount": "Delete my account",
-    "confirmDelete": "Are you sure you want to delete your account? It will be permanently deleted after 30 days."
+    "confirmDelete": "Are you sure you want to delete your account? It will be permanently deleted after 30 days.",
+    "subtitle": "Your details, your tokens, and account controls.",
+    "profileDesc": "Your name and bio are visible to anyone who opens your profile.",
+    "copy": "Copy",
+    "copied": "Copied"
   },
   "messages": {
     "title": "Messages",
     "empty": "No conversations yet. Reach out to a project owner from their project page.",
     "messagePlaceholder": "Write a message...",
     "selectConversation": "Select a conversation from the list",
-    "deletedUser": "Deleted user"
+    "deletedUser": "Deleted user",
+    "conversations": "Conversations",
+    "back": "Back",
+    "send": "Send",
+    "emptyHint": "Open any project and message its owner from their page.",
+    "sendError": "Couldn't send your message, please try again"
   },
   "notifications": {
     "title": "Notifications",
     "empty": "No notifications yet.",
-    "markAllRead": "Mark all as read"
+    "markAllRead": "Mark all as read",
+    "unreadCount": "{{n}} unread notifications",
+    "allRead": "You are all caught up.",
+    "emptyHint": "When someone interacts with your projects, it lands here."
   },
   "profile": {
     "verified": "Verified ✓",
     "lastActiveAndJoined": "Active {{lastActive}} · Joined {{joined}}",
     "projects": "Projects",
     "totalStars": "Total stars",
-    "empty": "No projects uploaded yet."
+    "empty": "No published projects on this account.",
+    "editProfile": "Edit profile",
+    "totalDownloads": "Downloads",
+    "emptyMineHint": "Your first upload will show up here.",
+    "posts": "Forum posts",
+    "noPosts": "No forum posts yet",
+    "noPostsMineHint": "Share an AI news item or article with the community."
   },
   "report": {
     "categories": {
@@ -218,9 +259,9 @@
     "viewConversation": "View conversation",
     "askPlaceholder": "Ask {{name}} about this project...",
     "overview": "Overview",
-    "noReadme": "No README has been written for this project.",
+    "noReadme": "This project has no README.",
     "filesTab": "Files",
-    "noFiles": "No files.",
+    "noFiles": "No files uploaded.",
     "commentsTab": "Comments",
     "commentPlaceholder": "Write a comment...",
     "loginTo": "Log in",
@@ -231,7 +272,13 @@
     "reportSubmitted": "Your report was received, the team will review it",
     "commentAddError": "Couldn't add your comment, please try again",
     "commentEditError": "Couldn't save the edit, please try again",
-    "contactSendError": "Couldn't send your message, please try again"
+    "contactSendError": "Couldn't send your message, please try again",
+    "ownerTitle": "Maintainer",
+    "publishedAt": "Published {{time}}",
+    "language": "Language",
+    "downloads": "Downloads",
+    "license": "License",
+    "tags": "Tags"
   },
   "upload": {
     "title": "Upload a new project",
@@ -257,7 +304,20 @@
     "requiredFields": "Name, description, and programming language are all required",
     "uploadError": "Something went wrong while uploading",
     "uploading": "Uploading...",
-    "submit": "Publish project"
+    "submit": "Publish project",
+    "sectionInfo": "Basics",
+    "sectionInfoDesc": "This is what people see first on the project card and in search results.",
+    "sectionDocs": "Documentation",
+    "sectionDocsDesc": "Explain what the project does and how to run it — the README is what makes people try it.",
+    "sectionLicense": "License",
+    "sectionLicenseDesc": "Decide what others are allowed to do with your code.",
+    "sectionFiles": "Project files",
+    "sectionFilesDesc": "Upload the code or data. You can mix single files with a whole folder.",
+    "dropHere": "Drop the files here",
+    "removeFile": "Remove file",
+    "optional": "optional",
+    "descriptionPlaceholder": "Two lines describing the project...",
+    "filesEmptyHint": "No files selected yet."
   },
   "editProject": {
     "title": "Edit project",
@@ -277,7 +337,7 @@
     "genericError": "Something went wrong, please try again",
     "login": {
       "title": "Log in",
-      "subtitle": "Welcome back. Log in to keep going.",
+      "subtitle": "Welcome back. Log in and pick up where you left off.",
       "submitting": "Logging in...",
       "submit": "Log in",
       "noAccount": "Don't have an account?",
@@ -285,7 +345,7 @@
     },
     "register": {
       "title": "Create a new account",
-      "subtitle": "Share your projects with the AI developer community.",
+      "subtitle": "One minute and you are part of the community.",
       "name": "Name",
       "passwordPlaceholder": "At least 8 characters",
       "agreeTo": "I agree to the",
@@ -294,7 +354,21 @@
       "submitting": "Creating...",
       "submit": "Create account",
       "hasAccount": "Already have an account?",
-      "login": "Log in"
+      "login": "Log in",
+      "strength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong"
+      }
+    },
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "side": {
+      "headline": "One place for Arabic AI projects",
+      "point1": "Download complete projects with a clear license — code, data, architectures.",
+      "point2": "Publish your work where people learning the same field will find it.",
+      "point3": "Trained models go to your own HuggingFace account, not our servers."
     }
   },
   "sort": {
@@ -307,34 +381,189 @@
     "languagePlaceholder": "Programming language (Python, C++...)",
     "tagsPlaceholder": "Tags (comma-separated): nlp, pytorch",
     "searchResultsFor": "Search results for:",
-    "empty": "No matching projects found. Try different filters."
+    "empty": "No projects match those filters.",
+    "subtitle": "Filter by category, language, or tags to find exactly what you need.",
+    "searchPlaceholder": "Search by name or description",
+    "sortLabel": "Sort results",
+    "clearAll": "Clear filters",
+    "resultCount": "{{formatted}} results",
+    "emptyHint": "Try fewer keywords, or clear some filters.",
+    "previous": "Previous",
+    "next": "Next",
+    "pagination": "Result pages"
   },
   "home": {
-    "heroTitle": "AI projects, ready to build on from the first moment",
-    "heroSubtitle": "Cleaned datasets, model architectures in different languages, and ready-to-run training code — all with a clear license and a trusted source. The trained model itself goes straight to your own HuggingFace account.",
+    "heroTitle": "AI projects you can actually run, from day one",
+    "heroSubtitle": "Cleaned datasets, model architectures across languages, and training code that works — each with a clear license and a named author. Your trained model goes straight to your own HuggingFace account.",
     "exploreProjects": "Explore projects",
     "uploadYours": "Upload your project",
-    "trending": "Trending",
+    "trending": "Selected projects",
     "viewAll": "View all",
     "latest": "Latest projects",
-    "empty": "No projects yet. Be the first to upload one to the platform.",
+    "empty": "No projects yet.",
     "stats": {
-      "projects": "published projects",
-      "members": "community members",
-      "stars": "stars given"
+      "projects": "projects",
+      "members": "members",
+      "stars": "stars"
     },
-    "latestMembers": {
-      "title": "Newest members",
-      "joined": "Joined {{time}}"
+    "joinNow": "Join the community",
+    "browseByCategory": "What are you looking for?",
+    "categoryHint": "Start from the category you care about instead of scrolling everything.",
+    "categoryCards": {
+      "dataset": "Training-ready data, cleaned and documented by its author.",
+      "trainingCode": "Working training scripts you can run and adapt.",
+      "modelArchitecture": "The model itself: layers, settings, and design decisions.",
+      "dataCleaning": "Scripts and tools that prepare data before training."
+    },
+    "trendingHint": "Most starred by the community right now.",
+    "emptyHint": "Be the first to publish one here.",
+    "how": {
+      "title": "How it works",
+      "subtitle": "From publishing a project to someone actually using it.",
+      "step1Title": "Publish with a clear license",
+      "step1Body": "Upload your files and pick a license, so your rights are set from day one and everyone knows what they can do.",
+      "step2Title": "The community finds it",
+      "step2Body": "People reach your project through search and filters, read the README, preview files, and message you directly.",
+      "step3Title": "The model stays yours",
+      "step3Body": "We never store trained models — they upload to your own HuggingFace account, and control stays with you."
+    },
+    "cta": {
+      "title": "Share what you built",
+      "body": "An account is free, and your project reaches people learning the same field who are looking for something to build on.",
+      "primary": "Create an account",
+      "secondary": "Read our story"
+    },
+    "forum": {
+      "title": "From the forum",
+      "subtitle": "The latest AI news, articles and research shared by the community",
+      "link": "All posts"
     }
   },
   "footer": {
     "tagline": "AI community",
     "about": "About",
     "terms": "Terms & privacy",
-    "explore": "Explore projects"
+    "explore": "Explore projects",
+    "blurb": "An Arabic-first home for AI projects: data, code, and model architectures in one place.",
+    "platform": "Platform",
+    "categories": "Categories",
+    "platformInfo": "Info",
+    "topProjects": "Most starred",
+    "builtBy": "Built by Abdullah Alsinjilawi"
   },
   "protectedRoute": {
     "checking": "Checking permissions..."
+  },
+  "nav": {
+    "home": "Home",
+    "explore": "Explore",
+    "upload": "Upload",
+    "about": "About",
+    "forum": "Forum"
+  },
+  "projectCard": {
+    "downloads": "Downloads"
+  },
+  "forum": {
+    "title": "Forum",
+    "subtitle": "An open space for AI news, articles, research and stories — post what you want, and discuss what others share.",
+    "newPost": "New post",
+    "editPost": "Edit post",
+    "editorSubtitle": "Write in Markdown and preview before you publish.",
+    "publish": "Publish",
+    "loginToPost": "Log in to post",
+    "loginToInteract": "Log in to react and comment.",
+    "searchPlaceholder": "Search by title or tag...",
+    "sortLabel": "Sort",
+    "resultCount": "{{formatted}} posts",
+    "empty": "No posts here yet",
+    "emptyHint": "Be the first to share news, an article or a discussion.",
+    "pinned": "Pinned",
+    "hiddenByAdmin": "Hidden by moderators",
+    "popularTags": "Popular tags",
+    "readingTime": "{{n}} min read",
+    "views": "{{formatted}} views",
+    "source": "Source",
+    "edited": "(edited)",
+    "sending": "Sending...",
+    "related": "Related posts",
+    "backToForum": "Back to the forum",
+    "postNotFound": "Post not found",
+    "postNotFoundHint": "It may have been deleted, or the link is wrong.",
+    "reactionsCount": "Reactions",
+    "commentsCount": "Comments",
+    "commentsHeading": "Comments ({{formatted}})",
+    "commentPlaceholder": "Share your thoughts...",
+    "publishComment": "Comment",
+    "noComments": "No comments yet — be the first.",
+    "commentDeleted": "Deleted comment",
+    "confirmDeleteComment": "Delete this comment?",
+    "confirmDeletePost": "Delete this post?",
+    "reply": "Reply",
+    "sendReply": "Send reply",
+    "replyPlaceholder": "Write your reply...",
+    "reportPost": "Report this post",
+    "reportSubmitted": "Your report was received",
+    "types": {
+      "all": "All",
+      "news": "News",
+      "article": "Article",
+      "research": "Research",
+      "story": "Story",
+      "discussion": "Discussion"
+    },
+    "sort": {
+      "newest": "Newest",
+      "top": "Most reactions",
+      "discussed": "Most discussed"
+    },
+    "reactions": {
+      "like": "Like",
+      "insightful": "Insightful",
+      "fire": "Fire",
+      "celebrate": "Celebrate",
+      "curious": "Curious",
+      "more": "More reactions"
+    },
+    "guidelines": {
+      "title": "Keeping the forum good",
+      "one": "Link the source when you share news or research.",
+      "two": "Write a clear title that actually describes the content.",
+      "three": "Argue with the idea, not the person."
+    },
+    "form": {
+      "type": "Post type",
+      "title": "Title",
+      "titlePlaceholder": "e.g. A new open-source model for Arabic translation",
+      "content": "Content",
+      "contentPlaceholder": "Write your news or article here... Markdown is supported.",
+      "tags": "Tags",
+      "tagsPlaceholder": "llm, arabic, training",
+      "tagsHint": "Comma separated, up to 8 tags.",
+      "sourceUrl": "Source URL",
+      "sourceHint": "Optional, but important for shared news and research.",
+      "coverUrl": "Cover image URL",
+      "excerpt": "Excerpt",
+      "excerptPlaceholder": "One line describing the post in cards (optional)"
+    },
+    "editor": {
+      "write": "Write",
+      "preview": "Preview",
+      "bold": "Bold",
+      "italic": "Italic",
+      "heading": "Heading",
+      "quote": "Quote",
+      "code": "Code",
+      "codeBlock": "Code block",
+      "list": "List",
+      "link": "Link",
+      "linkText": "link text",
+      "nothingToPreview": "Nothing to preview yet.",
+      "markdownSupported": "Markdown supported"
+    },
+    "validation": {
+      "required": "Title and content are required",
+      "failed": "Couldn't publish, please try again"
+    }
   }
 }

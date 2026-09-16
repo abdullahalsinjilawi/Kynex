@@ -1,20 +1,29 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import AuthLayout from '../components/AuthLayout';
+import PasswordInput from '../components/PasswordInput';
+import FormError from '../components/FormError';
+import Spinner from '../components/Spinner';
 
 export default function Login() {
   const { t } = useTranslation();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // لو المستخدم انحوّل لهون وهو رايح على صفحة محمية، منرجّعه لنفس الصفحة بعد الدخول
+  const redirectTo = location.state?.from || '/';
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError('');
     setLoading(true);
 
@@ -22,11 +31,8 @@ export default function Login() {
       const res = await apiClient.post('/auth/login', { email, password });
       login(res.data.user);
 
-      if (res.data.accountPendingDeletion) {
-        navigate('/settings?restore=1');
-      } else {
-        navigate('/');
-      }
+      if (res.data.accountPendingDeletion) navigate('/settings?restore=1');
+      else navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || t('auth.genericError'));
     } finally {
@@ -35,56 +41,52 @@ export default function Login() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[80vh] max-w-sm flex-col justify-center px-4">
-      <h1 className="mb-1 text-xl font-semibold">{t('auth.login.title')}</h1>
-      <p className="mb-6 text-sm text-ink-muted light:text-paper-muted">{t('auth.login.subtitle')}</p>
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <AuthLayout
+      title={t('auth.login.title')}
+      subtitle={t('auth.login.subtitle')}
+      footer={
+        <>
+          {t('auth.login.noAccount')}{' '}
+          <Link to="/register" className="link-brand font-medium">
+            {t('auth.login.createAccount')}
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">
+          <label className="field-label" htmlFor="login-email">
             {t('auth.email')}
           </label>
           <input
+            id="login-email"
             type="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(event) => setEmail(event.target.value)}
             placeholder="name@example.com"
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+            autoComplete="email"
+            inputMode="email"
+            dir="ltr"
+            className="input"
           />
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">
-            {t('auth.password')}
-          </label>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
-          />
-        </div>
+        <PasswordInput
+          label={t('auth.password')}
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          autoComplete="current-password"
+          placeholder="••••••••"
+        />
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        <FormError>{error}</FormError>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-2 rounded-lg bg-violet-500 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-600 disabled:opacity-60"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary mt-1 w-full">
+          {loading && <Spinner />}
           {loading ? t('auth.login.submitting') : t('auth.login.submit')}
         </button>
       </form>
-
-      <p className="mt-6 text-center text-sm text-ink-muted light:text-paper-muted">
-        {t('auth.login.noAccount')}{' '}
-        <Link to="/register" className="text-violet-400 hover:underline">
-          {t('auth.login.createAccount')}
-        </Link>
-      </p>
-    </div>
+    </AuthLayout>
   );
 }

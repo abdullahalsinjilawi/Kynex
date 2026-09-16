@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { avatarColorFor } from '../utils/avatarColor';
+import Avatar from './Avatar';
+import { formatCompact } from '../utils/formatNumber';
 
 const CATEGORY_KEYS = {
   'training-code': 'categories.trainingCode',
@@ -10,72 +11,104 @@ const CATEGORY_KEYS = {
   other: 'categories.other',
 };
 
+function StarIcon() {
+  return (
+    <svg className="h-3.5 w-3.5 fill-gold text-gold" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8-6.2 3.8 1.6-7L2 9.2l7.1-.6L12 2z" />
+    </svg>
+  );
+}
+
+function FileIcon() {
+  return (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 3h8l4 4v14H6z" />
+      <path d="M14 3v4h4" />
+    </svg>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 4v10m0 0 4-4m-4 4-4-4" />
+      <path d="M5 17v1.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V17" />
+    </svg>
+  );
+}
+
+/**
+ * بطاقة المشروع.
+ *
+ * ملاحظة مهمة بالبنية: قبل هيك كان في رابط صاحب المشروع *جوّا* رابط المشروع —
+ * وهاد HTML غير صالح (رابط داخل رابط)، وبالمتصفح بيطلع سلوك غريب بالضغط وبالكيبورد.
+ * الحل: البطاقة صارت article عادي، ورابط المشروع بيتمدد على كل البطاقة بـ
+ * (after:absolute after:inset-0)، ورابط صاحب المشروع فوقه بـ z-10. النتيجة: كل
+ * البطاقة قابلة للضغط، بس رابط الصاحب بيشتغل لحاله، وما عاد في تداخل روابط.
+ */
 export default function ProjectCard({ project, index = 0 }) {
   const { t } = useTranslation();
   const fileCount = project.files?.length || 0;
+  const ownerId = project.owner?._id || project.owner?.id;
+  const categoryKey = CATEGORY_KEYS[project.category];
 
   return (
-    <Link
-      to={`/project/${project.slug}`}
-      style={{ '--card-delay': `${Math.min(index, 8) * 60}ms` }}
-      className="group animate-card-in relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-ink-border bg-ink-surface p-6 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-violet-500/50 hover:shadow-xl hover:shadow-violet-500/10 light:border-paper-border light:bg-paper-surface"
+    <article
+      style={{ '--card-delay': `${Math.min(index, 8) * 50}ms` }}
+      className="group animate-card-in card card-hover relative flex flex-col gap-3.5 p-5"
     >
-      {/* خط توهج علوي يبين بس عند hover - لمسة رقي بدون ما يكون صارخ. منخليه يتمدد من
-          النص للطرفين (origin-center) بدل ما يعتمد على اتجاه ثابت، حتى يبقى صحيح
-          بصرياً بغض النظر عن اتجاه الصفحة (عربي RTL أو إنجليزي LTR) */}
-      <span className="absolute inset-x-0 top-0 h-0.5 origin-center scale-x-0 bg-gradient-to-r from-transparent via-violet-400 to-transparent transition-transform duration-500 ease-out group-hover:scale-x-100" />
+      <div className="flex items-start justify-between gap-3">
+        <span className="badge badge-brand">
+          {categoryKey ? t(categoryKey) : project.category}
+        </span>
+        <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-muted tnum">
+          <StarIcon />
+          {formatCompact(project.starsCount ?? 0)}
+        </span>
+      </div>
 
-      {/* فئة المشروع - سياق سريع قبل حتى قراءة الاسم */}
-      <span className="w-fit rounded-md bg-violet-500/10 px-2.5 py-1 font-mono text-xs font-medium text-violet-400">
-        {CATEGORY_KEYS[project.category] ? t(CATEGORY_KEYS[project.category]) : project.category}
-      </span>
-
-      <h3 className="text-lg font-semibold leading-snug text-ink-text transition-colors group-hover:text-violet-400 light:text-paper-text">
-        {project.name}
+      <h3 className="text-[17px] font-semibold leading-snug">
+        <Link
+          to={`/project/${project.slug}`}
+          className="transition-colors after:absolute after:inset-0 after:content-[''] group-hover:text-brand-light"
+        >
+          {project.name}
+        </Link>
       </h3>
 
-      <p className="line-clamp-2 flex-1 text-sm leading-relaxed text-ink-muted light:text-paper-muted">
+      <p className="line-clamp-2 flex-1 text-sm leading-relaxed text-muted">
         {project.description}
       </p>
 
-      <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-ink-muted light:text-paper-muted">
-        <span className="rounded-lg border border-ink-border px-2 py-1 light:border-paper-border">
+      <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted">
+        <span className="rounded-md border border-line px-2 py-0.5 font-display">
           {project.language}
         </span>
-        <span className="rounded-lg border border-ink-border px-2 py-1 light:border-paper-border">
-          {project.license?.type}
-        </span>
+        {project.license?.type && (
+          <span className="rounded-md border border-line px-2 py-0.5">{project.license.type}</span>
+        )}
       </div>
 
-      <div className="flex items-center justify-between border-t border-ink-border pt-4 text-sm text-ink-muted light:border-paper-border light:text-paper-muted">
+      <div className="mt-1 flex items-center justify-between gap-3 border-t border-line-soft pt-3.5">
         <Link
-          to={`/profile/${project.owner?._id || project.owner?.id}`}
-          onClick={(e) => e.stopPropagation()}
-          className="flex items-center gap-2 transition-colors hover:text-violet-400"
+          to={`/profile/${ownerId}`}
+          className="relative z-10 flex min-w-0 items-center gap-2 text-sm text-muted transition-colors hover:text-fg"
         >
-          <span className={`flex h-6 w-6 items-center justify-center rounded-full font-mono text-xs font-semibold ${avatarColorFor(project.owner?._id).bg} ${avatarColorFor(project.owner?._id).text}`}>
-            {project.owner?.name?.charAt(0)}
-          </span>
-          {project.owner?.name}
+          <Avatar name={project.owner?.name} id={ownerId} size="sm" />
+          <span className="truncate">{project.owner?.name}</span>
         </Link>
 
-        <div className="flex items-center gap-3 font-mono">
-          <span className="flex items-center gap-1.5">
-            <svg className="h-4 w-4 fill-gold text-gold" viewBox="0 0 24 24">
-              <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8-6.2 3.8 1.6-7L2 9.2l7.1-.6L12 2z" />
-            </svg>
-            {project.starsCount ?? 0}
+        <div className="flex shrink-0 items-center gap-3 text-xs text-muted tnum">
+          <span className="flex items-center gap-1" title={t('common.fileCount', { count: fileCount })}>
+            <FileIcon />
+            {fileCount}
           </span>
-          <span className="flex items-center gap-1" title={t('common.viewCount', { count: project.viewsCount ?? 0 })}>
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            {project.viewsCount ?? 0}
+          <span className="flex items-center gap-1" title={t('projectCard.downloads')}>
+            <DownloadIcon />
+            {formatCompact(project.downloadsCount ?? 0)}
           </span>
-          <span>{t('common.fileCount', { count: fileCount })}</span>
         </div>
       </div>
-    </Link>
+    </article>
   );
 }

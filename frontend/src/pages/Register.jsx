@@ -3,20 +3,44 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import AuthLayout from '../components/AuthLayout';
+import PasswordInput from '../components/PasswordInput';
+import FormError from '../components/FormError';
+import Spinner from '../components/Spinner';
+
+/** مؤشر قوة بسيط: طول كلمة السر + تنوّع المحارف. هدفه يوجّه، مش يمنع. */
+function strengthOf(password) {
+  if (!password) return 0;
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/[0-9]/.test(password) && /[a-zA-Z]/.test(password)) score++;
+  if (/[^a-zA-Z0-9]/.test(password)) score++;
+  return Math.min(score, 3);
+}
 
 export default function Register() {
   const { t } = useTranslation();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const strength = strengthOf(password);
+  const strengthLabels = [
+    t('auth.register.strength.weak'),
+    t('auth.register.strength.fair'),
+    t('auth.register.strength.good'),
+    t('auth.register.strength.strong'),
+  ];
+
+  const handleRegister = async (event) => {
+    event.preventDefault();
     setError('');
 
     if (!acceptedTerms) {
@@ -27,7 +51,7 @@ export default function Register() {
     setLoading(true);
     try {
       const res = await apiClient.post('/auth/register', { name, email, password, acceptedTerms });
-      // ما فيه خطوة تفعيل — الباك اند بيرجع اليوزر موصول (كوكي الجلسة انحطت مباشرة)
+      // ما فيه خطوة تفعيل — الباك اند بيرجع المستخدم موصول (كوكي الجلسة انحطت مباشرة)
       login(res.data.user);
       navigate('/');
     } catch (err) {
@@ -38,82 +62,107 @@ export default function Register() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[80vh] max-w-sm flex-col justify-center px-4">
-      <h1 className="mb-1 text-xl font-semibold">{t('auth.register.title')}</h1>
-      <p className="mb-6 text-sm text-ink-muted light:text-paper-muted">{t('auth.register.subtitle')}</p>
-
-      <form onSubmit={handleRegister} className="flex flex-col gap-4">
+    <AuthLayout
+      title={t('auth.register.title')}
+      subtitle={t('auth.register.subtitle')}
+      footer={
+        <>
+          {t('auth.register.hasAccount')}{' '}
+          <Link to="/login" className="link-brand font-medium">
+            {t('auth.register.login')}
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleRegister} className="flex flex-col gap-4" noValidate>
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">
+          <label className="field-label" htmlFor="register-name">
             {t('auth.register.name')}
           </label>
           <input
+            id="register-name"
             type="text"
             required
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+            onChange={(event) => setName(event.target.value)}
+            autoComplete="name"
+            className="input"
           />
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">{t('auth.email')}</label>
+          <label className="field-label" htmlFor="register-email">
+            {t('auth.email')}
+          </label>
           <input
+            id="register-email"
             type="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="name@example.com"
+            autoComplete="email"
+            inputMode="email"
+            dir="ltr"
+            className="input"
           />
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm text-ink-muted light:text-paper-muted">
-            {t('auth.password')}
-          </label>
-          <input
-            type="password"
-            required
-            minLength={8}
+          <PasswordInput
+            label={t('auth.password')}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="new-password"
+            minLength={8}
             placeholder={t('auth.register.passwordPlaceholder')}
-            className="w-full rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
           />
+
+          {password && (
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex flex-1 gap-1" aria-hidden="true">
+                {[0, 1, 2, 3].map((level) => (
+                  <span
+                    key={level}
+                    className={`h-1 flex-1 rounded-full transition-colors ${
+                      level <= strength
+                        ? strength === 0
+                          ? 'bg-danger'
+                          : strength < 3
+                            ? 'bg-gold'
+                            : 'bg-success'
+                        : 'bg-line'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-muted">{strengthLabels[strength]}</span>
+            </div>
+          )}
         </div>
 
-        <label className="flex items-start gap-2 text-sm text-ink-muted light:text-paper-muted">
+        <label className="flex cursor-pointer items-start gap-2.5 text-sm text-muted">
           <input
             type="checkbox"
             checked={acceptedTerms}
-            onChange={(e) => setAcceptedTerms(e.target.checked)}
-            className="mt-0.5 accent-violet-500"
+            onChange={(event) => setAcceptedTerms(event.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
           />
           <span>
             {t('auth.register.agreeTo')}{' '}
-            <Link to="/terms" className="text-violet-400 hover:underline">
+            <Link to="/terms" className="link-brand">
               {t('auth.register.terms')}
             </Link>
           </span>
         </label>
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        <FormError>{error}</FormError>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-2 rounded-lg bg-violet-500 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-600 disabled:opacity-60"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary mt-1 w-full">
+          {loading && <Spinner />}
           {loading ? t('auth.register.submitting') : t('auth.register.submit')}
         </button>
       </form>
-
-      <p className="mt-6 text-center text-sm text-ink-muted light:text-paper-muted">
-        {t('auth.register.hasAccount')}{' '}
-        <Link to="/login" className="text-violet-400 hover:underline">
-          {t('auth.register.login')}
-        </Link>
-      </p>
-    </div>
+    </AuthLayout>
   );
 }

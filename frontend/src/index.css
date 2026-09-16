@@ -1,63 +1,151 @@
 @import "tailwindcss";
 
-/* بدل ما نكرر [html.light_&]: بكل مكان، عرّفنا variant قصير اسمه light نستخدمه هيك: light:bg-paper */
+/* variant قصير للوضع الفاتح. بعد إعادة التصميم صار التبديل بين الوضعين يصير تلقائياً
+   من المتغيّرات (شوف html.light تحت)، فما عاد لازم نكتب light: إلا بحالات نادرة —
+   بس خلّيناه موجود حتى الملفات القديمة تضل شغّالة. */
 @custom-variant light (&:where(.light, .light *));
 
+/* ============================================================================
+   1) التوكنز — الوضع الداكن هو الأساس
+   ========================================================================= */
 @theme {
-  --font-sans: "IBM Plex Sans Arabic", "IBM Plex Sans", sans-serif;
-  --font-display: "Poppins", "IBM Plex Sans Arabic", sans-serif;
-  --font-mono: "IBM Plex Mono", monospace;
+  --font-sans: "IBM Plex Sans Arabic", "IBM Plex Sans", system-ui, sans-serif;
+  --font-display: "Space Grotesk", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
 
-  /* البنفسجي - اللون المميز الأساسي بالمنصة (أزرار أساسية، حالة نشطة، روابط) */
+  /* --- الأسطح --- */
+  --color-canvas: #080b1a;
+  --color-surface: #101425;
+  --color-elevated: #171c33;
+  --color-line: #232945;
+  --color-line-soft: #1a1f38;
+  --color-fg: #f2f2f8;
+  --color-muted: #9494ae;
+
+  /* --- الهوية --- */
+  --color-brand: #7c5cfc;
+  --color-brand-strong: #6947e8;
+  --color-brand-light: #a795ff;
+  --color-accent: #2dd9c7;
+  --color-gold: #f5b942;
+
+  /* --- حالات --- */
+  --color-danger: #f26d6d;
+  --color-success: #3ecf8e;
+
+  /* --- أسماء قديمة، محفوظة حتى الملفات يلي ما انعاد كتابتها تضل متناسقة --- */
+  --color-ink: #080b1a;
+  --color-ink-surface: #101425;
+  --color-ink-surface-raised: #171c33;
+  --color-ink-border: #232945;
+  --color-ink-text: #f2f2f8;
+  --color-ink-muted: #9494ae;
+  --color-paper: #f6f6fb;
+  --color-paper-surface: #ffffff;
+  --color-paper-border: #e4e4ee;
+  --color-paper-text: #13131c;
+  --color-paper-muted: #62627a;
   --color-violet-50: #f2f0ff;
-  --color-violet-400: #9c8bfd;
+  --color-violet-400: #a795ff;
   --color-violet-500: #7c5cfc;
   --color-violet-600: #6947e8;
   --color-violet-900: #241a5c;
+  --color-cyan-400: #5eeae0;
+  --color-cyan-500: #2dd9c7;
 
-  /* السماوي - لمسة ثانوية واحدة بس، لعناصر "الجيل الجاي" (الشعار، توهج البطل، حدود مميزة) */
-  --color-cyan-400: #5EEAE0;
-  --color-cyan-500: #2DD9C7;
-
-  /* الذهبي - استثناء وحيد للبنفسجي، فقط لأيقونة النجمة (زي GitHub بالضبط) */
-  --color-gold: #f5b942;
-
-  /* الوضع الداكن (افتراضي) - إنديغو غامق مائل للأزرق، مو رمادي مسطّح */
-  --color-ink: #0b0e1a;
-  --color-ink-surface: #141726;
-  --color-ink-surface-raised: #1c1f31;
-  --color-ink-border: #262a3d;
-  --color-ink-text: #f2f1f6;
-  --color-ink-muted: #8b8a99;
-
-  /* الوضع الفاتح */
-  --color-paper: #f7f7f9;
-  --color-paper-surface: #ffffff;
-  --color-paper-border: #e4e4e9;
-  --color-paper-text: #14141b;
-  --color-paper-muted: #6b6a76;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-lift: 0 18px 40px -22px rgb(0 0 0 / 0.85);
+  --shadow-brand: 0 14px 32px -14px rgb(124 92 252 / 0.55);
+  --shadow-pop: 0 24px 56px -24px rgb(0 0 0 / 0.75);
 }
 
-/* الوضع الافتراضي: داكن. نبدّل عن طريق كلاس .light على html */
+/* ============================================================================
+   2) الوضع الفاتح — نفس التوكنز بقيم تانية
+   ========================================================================= */
+html.light {
+  --color-canvas: #f6f6fb;
+  --color-surface: #ffffff;
+  --color-elevated: #ffffff;
+  --color-line: #e4e4ee;
+  --color-line-soft: #eeeef5;
+  --color-fg: #13131c;
+  --color-muted: #5f5f78;
+
+  --color-brand: #6335f0;
+  --color-brand-strong: #5227d8;
+  --color-brand-light: #5527d9;
+  --color-accent: #0c8d82;
+  --color-gold: #b57a05;
+
+  --color-danger: #d13a3a;
+  --color-success: #158455;
+
+  --color-ink: #f6f6fb;
+  --color-ink-surface: #ffffff;
+  --color-ink-surface-raised: #ffffff;
+  --color-ink-border: #e4e4ee;
+  --color-ink-text: #13131c;
+  --color-ink-muted: #5f5f78;
+  --color-violet-400: #5527d9;
+  --color-violet-500: #6335f0;
+  --color-violet-600: #5227d8;
+  --color-cyan-400: #0c8d82;
+  --color-cyan-500: #0c8d82;
+
+  --shadow-card: 0 1px 2px rgb(19 19 28 / 0.06);
+  --shadow-lift: 0 18px 40px -24px rgb(19 19 28 / 0.22);
+  --shadow-brand: 0 14px 32px -16px rgb(99 53 240 / 0.4);
+  --shadow-pop: 0 24px 56px -26px rgb(19 19 28 / 0.25);
+}
+
 html {
   color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
 }
 html.light {
   color-scheme: light;
 }
 
 body {
-  background-color: var(--color-ink);
-  color: var(--color-ink-text);
+  background-color: var(--color-canvas);
+  color: var(--color-fg);
   font-family: var(--font-sans);
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-html.light body {
-  background-color: var(--color-paper);
-  color: var(--color-paper-text);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* سطر أنيق يخفي شريط التمرير بالقوائم الأفقية (المشاريع المميزة) بدون ما يفقد إمكانية التمرير */
+/* أرقام ثابتة العرض حتى العدادات ما ترقص وهي بتتحدّث */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background-color: color-mix(in oklab, var(--color-brand) 35%, transparent);
+  color: var(--color-fg);
+}
+
+/* شريط تمرير متناسق مع الثيم */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-line);
+  border-radius: 99px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+/* تركيز واضح لمستخدمي الكيبورد */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -66,12 +154,303 @@ html.light body {
   scrollbar-width: none;
 }
 
-/* ==================== حركات خفيفة (هيبة، مش استعراض) ==================== */
+/* ============================================================================
+   3) مكوّنات متكررة — كلاس واحد بدل 12 كلاس بكل زر وحقل
+   ========================================================================= */
+@layer components {
+  /* ---------- أزرار ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    padding: 0.625rem 1.125rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 0.18s ease, border-color 0.18s ease,
+      color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease,
+      filter 0.18s ease;
+    min-height: 44px; /* الحد الأدنى لمساحة اللمس */
+  }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .btn-primary {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-brand) 0%,
+      var(--color-brand-strong) 100%
+    );
+    color: #fff;
+    box-shadow: var(--shadow-brand);
+  }
+  .btn-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-surface);
+    border-color: var(--color-line);
+    color: var(--color-fg);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: color-mix(in oklab, var(--color-brand) 55%, var(--color-line));
+    background-color: color-mix(in oklab, var(--color-brand) 8%, var(--color-surface));
+  }
+
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--color-muted);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background-color: color-mix(in oklab, var(--color-fg) 8%, transparent);
+    color: var(--color-fg);
+  }
+
+  .btn-danger {
+    background-color: color-mix(in oklab, var(--color-danger) 14%, transparent);
+    color: var(--color-danger);
+    border-color: color-mix(in oklab, var(--color-danger) 35%, transparent);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background-color: color-mix(in oklab, var(--color-danger) 22%, transparent);
+  }
+
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    min-height: 36px;
+    border-radius: 0.625rem;
+  }
+  .btn-lg {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9375rem;
+    min-height: 52px;
+    border-radius: 0.875rem;
+  }
+
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 0.75rem;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+  .icon-btn:hover {
+    background-color: color-mix(in oklab, var(--color-fg) 8%, transparent);
+    color: var(--color-fg);
+  }
+
+  /* ---------- حقول الإدخال ---------- */
+  .field-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+
+  .input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    color: var(--color-fg);
+    outline: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    min-height: 44px;
+  }
+  .input::placeholder {
+    color: color-mix(in oklab, var(--color-muted) 85%, transparent);
+  }
+  .input:hover:not(:disabled) {
+    border-color: color-mix(in oklab, var(--color-brand) 30%, var(--color-line));
+  }
+  .input:focus {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand) 22%, transparent);
+  }
+  .input:focus-visible {
+    outline: none;
+  }
+  .input[aria-invalid="true"] {
+    border-color: var(--color-danger);
+  }
+  .input[aria-invalid="true"]:focus {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-danger) 22%, transparent);
+  }
+
+  .input-sm {
+    min-height: 38px;
+    padding-block: 0.4rem;
+    font-size: 0.8125rem;
+  }
+
+  textarea.input {
+    min-height: 96px;
+    line-height: 1.75;
+    resize: vertical;
+  }
+
+  select.input {
+    cursor: pointer;
+  }
+  select.input option {
+    background-color: var(--color-elevated);
+    color: var(--color-fg);
+  }
+
+  /* ---------- أسطح ---------- */
+  .card {
+    border-radius: 1rem;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-hover {
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.28s ease, box-shadow 0.28s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in oklab, var(--color-brand) 45%, var(--color-line));
+    box-shadow: var(--shadow-lift);
+  }
+
+  .panel {
+    border-radius: 1.25rem;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+  }
+
+  .glass {
+    background-color: color-mix(in oklab, var(--color-canvas) 80%, transparent);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  }
+
+  /* ---------- شارات ووسوم ---------- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 99px;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+    padding: 0.4rem 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.18s ease, border-color 0.18s ease,
+      background-color 0.18s ease;
+  }
+  .chip:hover {
+    color: var(--color-fg);
+    border-color: color-mix(in oklab, var(--color-brand) 45%, var(--color-line));
+  }
+  .chip[data-active="true"] {
+    background-color: color-mix(in oklab, var(--color-brand) 15%, transparent);
+    border-color: color-mix(in oklab, var(--color-brand) 55%, transparent);
+    color: var(--color-brand-light);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 0.5rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.1rem;
+  }
+  .badge-brand {
+    background-color: color-mix(in oklab, var(--color-brand) 16%, transparent);
+    color: var(--color-brand-light);
+  }
+  .badge-accent {
+    background-color: color-mix(in oklab, var(--color-accent) 16%, transparent);
+    color: var(--color-accent);
+  }
+  .badge-danger {
+    background-color: color-mix(in oklab, var(--color-danger) 14%, transparent);
+    color: var(--color-danger);
+  }
+  .badge-muted {
+    background-color: color-mix(in oklab, var(--color-fg) 7%, transparent);
+    color: var(--color-muted);
+  }
+
+  .link-brand {
+    color: var(--color-brand-light);
+    transition: color 0.18s ease;
+  }
+  .link-brand:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: color-mix(in oklab, var(--color-fg) 6%, transparent);
+    border-radius: 0.5rem;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--color-fg) 8%, transparent),
+      transparent
+    );
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+/* ============================================================================
+   4) حركة — هادئة ومقصودة
+   ========================================================================= */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
 
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -81,194 +460,215 @@ html.light body {
 
 .animate-card-in {
   opacity: 0;
-  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fade-in-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   animation-delay: var(--card-delay, 0ms);
 }
 
-/* توهج بطيء وهادئ خلف عناصر hero - عمق بدون إلهاء */
-@keyframes float-glow {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-10px, 12px) scale(1.05); }
-}
-
-.animate-float-slow {
-  animation: float-glow 12s ease-in-out infinite;
-}
-.animate-float-slow-reverse {
-  animation: float-glow 14s ease-in-out infinite reverse;
-}
-
-/* انتقال ناعم عند تغيّر الصفحة بدل القفزة المفاجئة */
 @keyframes page-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-page-in {
-  animation: page-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* حترم تفضيل المستخدمين يلي بيوقفوا الحركة بإعدادات جهازهم */
-@media (prefers-reduced-motion: reduce) {
-  .animate-card-in, .animate-float-slow, .animate-float-slow-reverse, .animate-page-in {
-    animation: none;
+  from {
+    opacity: 0;
+  }
+  to {
     opacity: 1;
   }
 }
+.animate-page-in {
+  animation: page-fade-in 0.22s ease-out;
+}
 
-/* ==================== عرض README (Markdown) ==================== */
-/* أنماط بسيطة ومتسقة مع نظام الألوان الحالي - مستخدمة بمكوّن MarkdownView */
+/* عناصر بتبان لما توصلها بالتمرير (تتفعّل من useReveal) */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .animate-card-in,
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================================
+   5) عرض README (Markdown)
+   ========================================================================= */
 .markdown-body {
-  font-size: 0.875rem;
-  line-height: 1.75;
-  color: var(--color-ink-text);
-}
-html.light .markdown-body {
-  color: var(--color-paper-text);
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  color: var(--color-fg);
 }
 
-.markdown-body h1, .markdown-body h2, .markdown-body h3 {
-  font-weight: 600;
-  margin-top: 1.25em;
-  margin-bottom: 0.5em;
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.6em;
   line-height: 1.35;
+  letter-spacing: -0.01em;
 }
-.markdown-body h1 { font-size: 1.25rem; }
-.markdown-body h2 { font-size: 1.1rem; }
-.markdown-body h3 { font-size: 1rem; }
-.markdown-body h1:first-child, .markdown-body h2:first-child, .markdown-body h3:first-child {
+.markdown-body h1 {
+  font-size: 1.35rem;
+}
+.markdown-body h2 {
+  font-size: 1.15rem;
+}
+.markdown-body h3 {
+  font-size: 1rem;
+}
+.markdown-body h1:first-child,
+.markdown-body h2:first-child,
+.markdown-body h3:first-child {
   margin-top: 0;
 }
 
-.markdown-body p { margin-bottom: 0.9em; }
+.markdown-body p {
+  margin-bottom: 0.95em;
+}
 
-.markdown-body ul, .markdown-body ol {
-  margin-bottom: 0.9em;
+.markdown-body ul,
+.markdown-body ol {
+  margin-bottom: 0.95em;
   padding-inline-start: 1.4em;
 }
-.markdown-body ul { list-style: disc; }
-.markdown-body ol { list-style: decimal; }
-.markdown-body li { margin-bottom: 0.25em; }
+.markdown-body ul {
+  list-style: disc;
+}
+.markdown-body ol {
+  list-style: decimal;
+}
+.markdown-body li {
+  margin-bottom: 0.3em;
+}
 
 .markdown-body a {
-  color: var(--color-violet-400);
+  color: var(--color-brand-light);
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
 }
 
 .markdown-body code {
   font-family: var(--font-mono);
   font-size: 0.85em;
-  background-color: var(--color-ink-surface);
-  border-radius: 4px;
+  background-color: color-mix(in oklab, var(--color-fg) 8%, transparent);
+  border-radius: 5px;
   padding: 0.15em 0.4em;
-}
-html.light .markdown-body code {
-  background-color: var(--color-paper-surface);
-  border: 1px solid var(--color-paper-border);
 }
 
 .markdown-body pre {
-  background-color: var(--color-ink-surface);
-  border: 1px solid var(--color-ink-border);
-  border-radius: 10px;
-  padding: 0.9em 1em;
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  padding: 1em 1.15em;
   overflow-x: auto;
-  margin-bottom: 0.9em;
-}
-html.light .markdown-body pre {
-  background-color: var(--color-paper-surface);
-  border-color: var(--color-paper-border);
+  margin-bottom: 0.95em;
+  direction: ltr;
+  text-align: left;
 }
 .markdown-body pre code {
   background: none;
-  border: none;
   padding: 0;
+  font-size: 0.85em;
+  line-height: 1.7;
 }
 
 .markdown-body blockquote {
-  border-inline-start: 3px solid var(--color-violet-500);
-  padding-inline-start: 0.9em;
-  color: var(--color-ink-muted);
-  margin-bottom: 0.9em;
-}
-html.light .markdown-body blockquote {
-  color: var(--color-paper-muted);
+  border-inline-start: 3px solid var(--color-brand);
+  padding-inline-start: 1em;
+  color: var(--color-muted);
+  margin-bottom: 0.95em;
 }
 
 .markdown-body hr {
   border: none;
-  border-top: 1px solid var(--color-ink-border);
-  margin: 1.25em 0;
-}
-html.light .markdown-body hr {
-  border-top-color: var(--color-paper-border);
+  border-top: 1px solid var(--color-line);
+  margin: 1.5em 0;
 }
 
 .markdown-body table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 0.9em;
-  font-size: 0.85em;
+  margin-bottom: 0.95em;
+  font-size: 0.875em;
+  display: block;
+  overflow-x: auto;
 }
-.markdown-body th, .markdown-body td {
-  border: 1px solid var(--color-ink-border);
-  padding: 0.4em 0.6em;
-  text-align: right;
-}
-html.light .markdown-body th, html.light .markdown-body td {
-  border-color: var(--color-paper-border);
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--color-line);
+  padding: 0.5em 0.7em;
+  text-align: start;
 }
 .markdown-body th {
-  background-color: var(--color-ink-surface);
+  background-color: color-mix(in oklab, var(--color-fg) 5%, transparent);
   font-weight: 600;
-}
-html.light .markdown-body th {
-  background-color: var(--color-paper-surface);
 }
 
 .markdown-body img {
   max-width: 100%;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
-/* ==================== تلوين الكود (highlight.js) ==================== */
-/* ألوان مختارة يدوياً متناسقة مع هوية الموقع (بنفسجي/سماوي/ذهبي) بدل ثيم جاهز عام */
-
-.hljs-keyword, .hljs-built_in, .hljs-selector-tag {
-  color: var(--color-violet-400);
+/* ============================================================================
+   6) تلوين الكود (highlight.js)
+   ========================================================================= */
+.hljs-keyword,
+.hljs-built_in,
+.hljs-selector-tag {
+  color: var(--color-brand-light);
 }
-.hljs-string, .hljs-addition, .hljs-regexp {
-  color: var(--color-cyan-400);
+.hljs-string,
+.hljs-addition,
+.hljs-regexp {
+  color: var(--color-accent);
 }
-.hljs-comment, .hljs-quote {
-  color: var(--color-ink-muted);
+.hljs-comment,
+.hljs-quote {
+  color: var(--color-muted);
   font-style: italic;
 }
-html.light .hljs-comment, html.light .hljs-quote {
-  color: var(--color-paper-muted);
-}
-.hljs-number, .hljs-literal {
+.hljs-number,
+.hljs-literal {
   color: var(--color-gold);
 }
-.hljs-title, .hljs-title.function_, .hljs-title.class_ {
-  color: var(--color-ink-text);
+.hljs-title,
+.hljs-title.function_,
+.hljs-title.class_ {
+  color: var(--color-fg);
   font-weight: 600;
 }
-html.light .hljs-title, html.light .hljs-title.function_, html.light .hljs-title.class_ {
-  color: var(--color-paper-text);
-}
-.hljs-attr, .hljs-property, .hljs-tag, .hljs-name, .hljs-symbol {
-  color: #E893C7;
+.hljs-attr,
+.hljs-property,
+.hljs-tag,
+.hljs-name,
+.hljs-symbol {
+  color: #e893c7;
 }
 .hljs-deletion {
-  color: #F87171;
+  color: var(--color-danger);
 }
-.hljs-meta, .hljs-doctag {
-  color: var(--color-ink-muted);
+.hljs-meta,
+.hljs-doctag {
+  color: var(--color-muted);
 }
-html.light .hljs-meta, html.light .hljs-doctag {
-  color: var(--color-paper-muted);
+.hljs-emphasis {
+  font-style: italic;
 }
-.hljs-emphasis { font-style: italic; }
-.hljs-strong { font-weight: 700; }
+.hljs-strong {
+  font-weight: 700;
+}

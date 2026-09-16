@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../api/client';
+import { ListSkeleton } from '../../components/Skeleton';
+import EmptyState from '../../components/EmptyState';
 
 export default function AdminProjects() {
   const { t } = useTranslation();
@@ -39,27 +41,31 @@ export default function AdminProjects() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder={t('admin.projects.searchPlaceholder')}
-        className="mb-4 w-full max-w-sm rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm outline-none focus:border-violet-500 light:border-paper-border light:bg-paper-surface"
+        className="input input-sm mb-5 max-w-sm"
       />
 
       {loading ? (
-        <p className="text-sm text-ink-muted light:text-paper-muted">{t('common.loading')}</p>
+        <ListSkeleton count={6} />
+      ) : projects.length === 0 ? (
+        <EmptyState icon="projects" title={t('admin.projects.noResults')} />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-ink-border light:border-paper-border">
+        <div className="overflow-hidden rounded-xl border border-line">
           {projects.map((p, i) => (
             <div
               key={p._id}
-              className={`flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm ${
-                i !== 0 ? 'border-t border-ink-border light:border-paper-border' : ''
+              className={`flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm transition-colors hover:bg-fg/[0.03] ${
+                i !== 0 ? 'border-t border-line' : ''
               }`}
             >
-              <div>
-                <Link to={`/project/${p.slug}`} className="font-medium hover:text-violet-400">
-                  {p.name}
-                </Link>
-                {p.isDeleted && <span className="ms-2 text-xs text-red-400">{t('admin.projects.hidden')}</span>}
-                {p.isFeatured && <span className="ms-2 text-xs text-violet-400">{t('admin.projects.featured')}</span>}
-                <p className="text-xs text-ink-muted light:text-paper-muted">
+              <div className="min-w-0">
+                <p className="flex flex-wrap items-center gap-1.5">
+                  <Link to={`/project/${p.slug}`} className="font-medium hover:text-brand-light">
+                    {p.name}
+                  </Link>
+                  {p.isDeleted && <span className="badge badge-danger">{t('admin.projects.hidden')}</span>}
+                  {p.isFeatured && <span className="badge badge-brand">{t('admin.projects.featured')}</span>}
+                </p>
+                <p className="text-xs text-muted">
                   {p.owner?.name} ({p.owner?.email}) · {t('admin.projects.starsCount', { count: p.starsCount })}
                 </p>
               </div>
@@ -67,17 +73,13 @@ export default function AdminProjects() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleToggleFeature(p)}
-                  className="rounded-lg border border-ink-border px-2.5 py-1 text-xs hover:bg-ink-surface light:border-paper-border light:hover:bg-paper-surface"
+                  className="btn btn-secondary btn-sm"
                 >
                   {p.isFeatured ? t('admin.projects.unfeature') : t('admin.projects.feature')}
                 </button>
                 <button
                   onClick={() => handleToggleHide(p)}
-                  className={`rounded-lg px-2.5 py-1 text-xs ${
-                    p.isDeleted
-                      ? 'bg-violet-500/10 text-violet-400 hover:bg-violet-500/20'
-                      : 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                  }`}
+                  className={`btn btn-sm ${p.isDeleted ? 'btn-secondary' : 'btn-danger'}`}
                 >
                   {p.isDeleted ? t('admin.projects.show') : t('admin.projects.hide')}
                 </button>

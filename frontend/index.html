@@ -8,7 +8,7 @@
 
     <!-- ==================== أساسي ==================== -->
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Kynex | مجتمع الذكاء الاصطناعي</title>
     <meta
       name="description"
@@ -16,7 +16,7 @@
     />
     <meta
       name="keywords"
-      content="ذكاء اصطناعي, تعلم الآلة, machine learning, AI community, داتا سيت, دیب لرنينج, deep learning, مشاريع ذكاء اصطناعي, تعلم البرمجة, مجتمع عربي تقني, HuggingFace, PyTorch, TensorFlow, Kynex"
+      content="ذكاء اصطناعي, تعلم الآلة, machine learning, AI community, داتا سيت, ديب لرنينج, deep learning, مشاريع ذكاء اصطناعي, تعلم البرمجة, مجتمع عربي تقني, HuggingFace, PyTorch, TensorFlow, Kynex"
     />
     <meta name="author" content="Abdullah Alsinjilawi" />
     <meta name="robots" content="index, follow" />
@@ -30,7 +30,9 @@
     <link rel="alternate" hreflang="x-default" href="https://kynex.example/" />
 
     <!-- ==================== المظهر بالمتصفح/الجوال ==================== -->
-    <meta name="theme-color" content="#7C5CFC" />
+    <!-- لون شريط المتصفح بيتغيّر حسب وضع الجهاز، حتى ما يصير شريط أبيض فوق واجهة داكنة -->
+    <meta name="theme-color" content="#080b1a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f6f6fb" media="(prefers-color-scheme: light)" />
     <meta name="color-scheme" content="dark light" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="application-name" content="Kynex" />
@@ -46,7 +48,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
 
-    <!-- ==================== Open Graph (فيسبوك/واتساب/لينكدإن) ==================== -->
+    <!-- ==================== Open Graph ==================== -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Kynex | مجتمع الذكاء الاصطناعي" />
     <meta
@@ -72,15 +74,38 @@
     <meta name="twitter:image" content="https://kynex.example/og-image.png" />
     <meta name="twitter:image:alt" content="Kynex - مجتمع الذكاء الاصطناعي" />
 
-    <!-- ==================== خطوط ==================== -->
+    <!-- ==================== خطوط ====================
+      IBM Plex Sans Arabic: نص الواجهة العربي (أوضح خط عربي للشاشات الصغيرة).
+      Space Grotesk: العناوين والأرقام اللاتينية — بيعطي إحساس تقني بدون ما يكون Inter
+                     أو Poppins المستهلكين بكل موقع.
+      JetBrains Mono: أسماء الملفات والكود.
+    -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
 
-    <!-- ==================== Structured Data (مين سوا الموقع ولیش) ==================== -->
+    <!-- ==================== منع وميض الثيم ====================
+      بدون هاد السطر، الصفحة بتفتح دايماً داكنة وبعدين تقفز للفاتح (أو العكس) لما
+      يشتغل React ويقرأ التفضيل. منطبّق الكلاس واللون قبل ما يترسم أي شي.
+    -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+          var theme = saved || (prefersLight ? 'light' : 'dark');
+          if (theme === 'light') document.documentElement.classList.add('light');
+          document.documentElement.style.backgroundColor = theme === 'light' ? '#f6f6fb' : '#080b1a';
+        } catch (error) {
+          /* الوضع الداكن هو الافتراضي لو الوصول للتخزين ممنوع */
+        }
+      })();
+    </script>
+
+    <!-- ==================== Structured Data ==================== -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",

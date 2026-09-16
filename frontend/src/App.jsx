@@ -5,6 +5,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import Home from './pages/Home';
 import Explore from './pages/Explore';
+import Feed from './pages/Feed';
+import PostDetail from './pages/PostDetail';
+import PostEditor from './pages/PostEditor';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProjectDetail from './pages/ProjectDetail';
@@ -26,6 +29,8 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/forum" element={<Feed />} />
+        <Route path="/forum/:slug" element={<PostDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/project/:slug" element={<ProjectDetail />} />
@@ -33,6 +38,22 @@ export default function App() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/about" element={<About />} />
 
+        <Route
+          path="/forum/new"
+          element={
+            <ProtectedRoute>
+              <PostEditor />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/forum/:slug/edit"
+          element={
+            <ProtectedRoute>
+              <PostEditor />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/upload"
           element={

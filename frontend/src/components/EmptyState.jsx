@@ -1,12 +1,14 @@
-// أيقونات بسيطة بخطوط هندسية (نفس أسلوب شعار K وزخرفة شبكة العُقد بالـ hero) - نستخدمها
-// بكل حالة "ما فيه شي لسه" بالموقع بدل الاعتماد على نص بس داخل صندوق متقطّع
+import { Link } from 'react-router-dom';
+
+// أيقونات خطية بنفس أسلوب باقي الموقع — بدل صندوق متقطّع فاضي فيه سطر نص
 const ICONS = {
   projects: (
     <>
-      <rect x="14" y="18" width="36" height="28" rx="4" />
+      <rect x="14" y="18" width="36" height="28" rx="5" />
       <path d="M14 26h36" />
       <circle cx="20" cy="22" r="1.4" fill="currentColor" stroke="none" />
       <circle cx="25" cy="22" r="1.4" fill="currentColor" stroke="none" />
+      <path d="M24 34h16M24 39h10" />
     </>
   ),
   comments: (
@@ -42,25 +44,33 @@ const ICONS = {
   ),
 };
 
-// title/description نصوص جاهزة (مترجمة already من الصفحة اللي بتستدعيها)
-// icon: أحد مفاتيح ICONS بالأعلى
-export default function EmptyState({ icon = 'search', title, description }) {
+/**
+ * حالة "ما فيه شي لسه". المهم إنها تقول للمستخدم شو يعمل بعدين، مش بس تخبره إنو فاضي —
+ * فأي مكان فيه خطوة تالية منمرر له action.
+ */
+export default function EmptyState({ icon = 'search', title, description, action }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-ink-border px-6 py-14 text-center light:border-paper-border">
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-line px-6 py-16 text-center">
       <svg
         viewBox="0 0 64 64"
-        className="h-14 w-14 text-ink-border light:text-paper-border"
+        className="h-16 w-16 text-line"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
         {ICONS[icon] || ICONS.search}
       </svg>
-      {title && <p className="text-sm font-medium text-ink-text light:text-paper-text">{title}</p>}
-      {description && (
-        <p className="max-w-xs text-sm text-ink-muted light:text-paper-muted">{description}</p>
+
+      {title && <p className="text-base font-semibold">{title}</p>}
+      {description && <p className="max-w-sm text-sm leading-relaxed text-muted">{description}</p>}
+
+      {action?.to && (
+        <Link to={action.to} className="btn btn-secondary btn-sm mt-1">
+          {action.label}
+        </Link>
       )}
     </div>
   );
