@@ -52,7 +52,7 @@ export default function Register() {
     try {
       const res = await apiClient.post('/auth/register', { name, email, password, acceptedTerms });
       // ما فيه خطوة تفعيل — الباك اند بيرجع المستخدم موصول (كوكي الجلسة انحطت مباشرة)
-      login(res.data.user);
+      login(res.data.user, res.data.token);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || t('auth.genericError'));

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import apiClient from '../api/client';
+import apiClient, { setAuthToken } from '../api/client';
 
 const AuthContext = createContext(null);
 
@@ -43,13 +43,19 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // ما عاد في توكن نستقبله أو نخزّنه هون - السيرفر بيحطه بكوكي httpOnly تلقائياً
-  const login = (userData) => setUser(userData);
+  // الكوكي httpOnly يضل الاعتماد الأساسي، لكن منخزن التوكن كمان كـ fallback
+  // للحالات اللي المتصفح فيها بيحظر الكوكي cross-site (Safari ITP وغيره) -
+  // شوف التعليق بـ client.js لتفاصيل أكتر
+  const login = (userData, token) => {
+    if (token) setAuthToken(token);
+    setUser(userData);
+  };
 
   const logout = async () => {
     try {
       await apiClient.post('/auth/logout');
     } finally {
+      setAuthToken(null);
       setUser(null);
     }
   };

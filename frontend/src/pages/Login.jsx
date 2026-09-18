@@ -29,7 +29,7 @@ export default function Login() {
 
     try {
       const res = await apiClient.post('/auth/login', { email, password });
-      login(res.data.user);
+      login(res.data.user, res.data.token);
 
       if (res.data.accountPendingDeletion) navigate('/settings?restore=1');
       else navigate(redirectTo, { replace: true });
