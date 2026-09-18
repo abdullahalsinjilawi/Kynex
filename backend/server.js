@@ -38,38 +38,11 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 //
 // FRONTEND_URL ممكن يكون أكتر من دومين مفصولين بفاصلة (مثلاً بعد ما تضيف دومين مخصص
 // بجانب دومين Render الافتراضي): FRONTEND_URL=https://kynex-2tld.onrender.com,https://kynex.app
-//
-// بيدعم كمان نمط wildcard بـ '*' جوا أي مقطع من الدومين — مفيد مع Render لأنو لو
-// حذفت سيرفس وأعدت إنشاءه (أو الاسم الأصلي كان محجوز)، بيطلعلك لاحقة عشوائية جديدة
-// كل مرة (kynex-pq7j.onrender.com بدل kynex-frontend.onrender.com مثلاً)، فبدل ما
-// تضطر تحدّث FRONTEND_URL يدوياً بعد كل نشر، حط: FRONTEND_URL=https://kynex-*.onrender.com
-// (انتبه: هاد بيوثق بأي سيرفس Render اسمه يبلش بـ kynex- بس، مش بس سيرفسك تحديداً —
-// نطاق أضيق من الثقة بكل onrender.com، بس مش دقيق 100% متل دومين كامل محدد)
-const DEV_FALLBACK_ORIGIN = 'http://localhost:5173';
-
-// بنشيل محارف مخفية شائعة (مسافات صفرية، BOM، محارف اتجاه النص RTL/LTR زي ‎/‏) ممكن
-// تنلصق بالغلط وقت نسخ رابط من واجهة عربية أو من متصفح، وبتخلي القيمة تبين مطابقة
-// بالعين المجردة بس مش مطابقة فعلياً بالبايتات - وهاد بالضبط شكل الخطأ اللي بيصعب
-// اكتشافه لو ما فحصت القيمة بمحرر نصوص عادي
-const stripInvisibleChars = (str) => str.replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, '');
-
-const normalizeOrigin = (raw) => stripInvisibleChars(raw).trim().replace(/\/$/, '').toLowerCase();
-
-const allowedOriginPatterns = (process.env.FRONTEND_URL || DEV_FALLBACK_ORIGIN)
+// وبنشيل أي '/' زايدة بآخر كل دومين حتى ما ينكسر المطابقة بسبب فرق بسيط زي هيك
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
   .split(',')
-  .map(normalizeOrigin)
+  .map((origin) => origin.trim().replace(/\/$/, ''))
   .filter(Boolean);
-
-// نطبعها مرة وحدة وقت التشغيل (مش بس وقت الرفض) حتى تشوف فوراً بالـ Render logs،
-// بدون ما تحتاج تستنى خطأ أول، شو بالضبط قاري الكود من FRONTEND_URL هلأ
-logger.info(`🌐 CORS allowed origins: ${allowedOriginPatterns.join(', ') || '(فاضي! لازم تعبّي FRONTEND_URL)'}`);
-
-const originMatchesPattern = (origin, pattern) => {
-  if (!pattern.includes('*')) return origin === pattern;
-  const escapedParts = pattern.split('*').map((part) => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&'));
-  const regex = new RegExp(`^${escapedParts.join('[a-z0-9-]+')}$`);
-  return regex.test(origin);
-};
 
 app.use(
   cors({
@@ -77,16 +50,14 @@ app.use(
       // ما في Origin header إطلاقاً (طلبات سيرفر-لسيرفر، curl، Postman...) - نسمحها
       if (!origin) return callback(null, true);
 
-      const normalizedOrigin = normalizeOrigin(origin);
-      const isAllowed = allowedOriginPatterns.some((pattern) => originMatchesPattern(normalizedOrigin, pattern));
+      const normalizedOrigin = origin.replace(/\/$/, '');
+      if (allowedOrigins.includes(normalizedOrigin)) {
+        return callback(null, true);
+      }
 
-      if (isAllowed) return callback(null, true);
-
-      // نسجّل الدومين المرفوض *و* القائمة المسموحة الحالية سوا بنفس السطر، حتى
-      // تشوف فوراً وين بالضبط الفرق بدل ما تضل تخمّن ليش عم يترفض
-      logger.warn(
-        `🚫 CORS رفض طلب من دومين غير موجود بقائمة FRONTEND_URL: "${origin}" ← بعد التنضيف: "${normalizedOrigin}" (القائمة المسموحة حالياً: ${allowedOriginPatterns.join(', ') || '(فاضي!)'})`
-      );
+      // نسجّل أي دومين انرفض حتى نلاحظ فوراً بالـ logs لو FRONTEND_URL مش مضبوط
+      // صح، بدل ما نضل نخمّن ليش الفرونت اند عم ياخد "blocked by CORS policy" بصمت
+      logger.warn(`🚫 CORS رفض طلب من دومين غير موجود بقائمة FRONTEND_URL: ${origin}`);
       return callback(new Error('Not allowed by CORS'));
     },
     credentials: true, // ضروري حتى تنبعت/تنقبل الكوكيز عبر الطلبات cross-origin

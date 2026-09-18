@@ -31,6 +31,7 @@ const COOKIE_OPTIONS = {
 const setAuthCookie = (res, userId) => {
   const token = generateToken(userId);
   res.cookie('token', token, COOKIE_OPTIONS);
+  return token;
 };
 
 // @route  POST /api/auth/register
@@ -55,12 +56,15 @@ const register = async (req, res, next) => {
 
     logger.info(`مستخدم جديد سجّل: ${user.email}`);
 
-    setAuthCookie(res, user._id);
+    const token = setAuthCookie(res, user._id);
 
     res.status(201).json({
       success: true,
       message: t(req.lang, 'registeredSuccess'),
       user: sanitizeUser(user),
+      // fallback لو المتصفح حظر الكوكي cross-site (Safari ITP وغيره) - نفس الكوكي
+      // بالضبط، الفرونت بيستخدمه كـ Authorization header لو الكوكي ما اشتغل
+      token,
     });
   } catch (error) {
     next(error);
@@ -101,12 +105,14 @@ const login = async (req, res, next) => {
     }
 
     await user.resetFailedLogins();
-    setAuthCookie(res, user._id);
+    const token = setAuthCookie(res, user._id);
 
     res.status(200).json({
       success: true,
       user: sanitizeUser(user),
       accountPendingDeletion: !!user.deletedAt,
+      // fallback لو المتصفح حظر الكوكي cross-site (Safari ITP وغيره)
+      token,
     });
   } catch (error) {
     next(error);
