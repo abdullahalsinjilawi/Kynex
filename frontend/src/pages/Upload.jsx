@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../api/client';
 import PageHeader from '../components/PageHeader';
@@ -36,6 +36,7 @@ export default function Upload() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [createdSlug, setCreatedSlug] = useState(null); // لو انعمل إنشاء المشروع بس بعض ملفاته فشلت، منخزن الـ slug هون حتى إعادة الإرسال ما تنشئ مشروع تاني، بس ترفع الملفات المتبقية
   const dragDepth = useRef(0); // عدّاد: dragenter/dragleave بتضربوا مع كل عنصر ابن
 
   const [form, setForm] = useState({
@@ -69,6 +70,52 @@ export default function Upload() {
 
   const totalSize = files.reduce((sum, f) => sum + f.size, 0);
 
+  // برفع كل ملف بطلب HTTP منفصل بدل ما نبعتهم كلهم بطلب واحد - بعض المزودين (زي
+  // Render) بيرفضوا الطلب على مستوى الـ proxy لو فيه أجزاء (parts) كتير بنفس
+  // الطلب، حتى لو الحجم الكلي صغير جداً. برجع مصفوفة الملفات اللي فشلت (لإعادة
+  // المحاولة عليها بس لاحقاً) مع تحديث progress إجمالي حسب البايتات المرفوعة فعلياً
+  const uploadFilesToProject = async (slug, filesToUpload) => {
+    if (filesToUpload.length === 0) return [];
+
+    const loadedBytes = new Array(filesToUpload.length).fill(0);
+    const totalBytes = filesToUpload.reduce((sum, f) => sum + f.size, 0) || 1;
+    const updateProgress = () => {
+      const loaded = loadedBytes.reduce((sum, b) => sum + b, 0);
+      setProgress(Math.round((loaded / totalBytes) * 100));
+    };
+
+    const CONCURRENCY = 4; // كم ملف يترفعوا بالتوازي بنفس الوقت
+    const failed = [];
+    let nextIndex = 0;
+
+    const worker = async () => {
+      while (nextIndex < filesToUpload.length) {
+        const i = nextIndex++;
+        const file = filesToUpload[i];
+        const fileFormData = new FormData();
+        fileFormData.append('file', file);
+        fileFormData.append('filePath', file.webkitRelativePath || '');
+        try {
+          await apiClient.post(`/projects/${slug}/files`, fileFormData, {
+            onUploadProgress: (evt) => {
+              loadedBytes[i] = evt.loaded;
+              updateProgress();
+            },
+          });
+          loadedBytes[i] = file.size;
+          updateProgress();
+        } catch {
+          failed.push(file);
+        }
+      }
+    };
+
+    await Promise.all(
+      Array.from({ length: Math.min(CONCURRENCY, filesToUpload.length) }, worker)
+    );
+    return failed;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -79,25 +126,31 @@ export default function Upload() {
       return;
     }
 
-    const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) => formData.append(key, value));
-    files.forEach((file) => {
-      formData.append('files', file);
-      // webkitRelativePath موجودة تلقائياً لو الملف جاي من رفع مجلد كامل (input فيه
-      // خاصية webkitdirectory)، وبتكون فاضية لملف مفرد عادي - فيرجع الباك اند لاسم
-      // الملف الأصلي بهاي الحالة
-      formData.append('filePaths', file.webkitRelativePath || '');
-    });
-
     setLoading(true);
     setProgress(0);
     try {
-      const res = await apiClient.post('/projects', formData, {
-        onUploadProgress: (evt) => {
-          if (evt.total) setProgress(Math.round((evt.loaded / evt.total) * 100));
-        },
-      });
-      navigate(`/project/${res.data.project.slug}`);
+      // لو أول محاولة (أو لو محاولة سابقة فشلت بمرحلة إنشاء المشروع نفسها)، ننشئ
+      // المشروع فاضي من الملفات أول شي. لو إعادة محاولة بعد فشل جزئي بالملفات،
+      // بنستخدم نفس الـ slug المخزّن بدل ما ننشئ مشروع تاني من الصفر
+      let slug = createdSlug;
+      if (!slug) {
+        const formData = new FormData();
+        Object.entries(form).forEach(([key, value]) => formData.append(key, value));
+        const res = await apiClient.post('/projects', formData);
+        slug = res.data.project.slug;
+        setCreatedSlug(slug);
+      }
+
+      const failed = await uploadFilesToProject(slug, files);
+
+      if (failed.length === 0) {
+        navigate(`/project/${slug}`);
+        return;
+      }
+
+      setFiles(failed); // منخلي بس الملفات اللي فشلت جاهزة لإعادة المحاولة
+      setError(t('upload.someFilesFailed', { count: failed.length }));
+      setLoading(false);
     } catch (err) {
       setError(err.response?.data?.message || t('upload.uploadError'));
       setLoading(false);
@@ -111,7 +164,19 @@ export default function Upload() {
       <PageHeader title={t('upload.title')} description={t('upload.subtitle')} />
 
       <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-8 sm:px-6">
-        {error && <FormError>{error}</FormError>}
+        {error && (
+          <FormError>
+            {error}
+            {createdSlug && (
+              <>
+                {' '}
+                <Link to={`/project/${createdSlug}`} className="font-medium underline">
+                  {t('upload.viewProjectAnyway')}
+                </Link>
+              </>
+            )}
+          </FormError>
+        )}
 
         <Section title={t('upload.sectionInfo')} description={t('upload.sectionInfoDesc')}>
           <div>

@@ -303,6 +303,8 @@
     "clearAll": "Clear all",
     "requiredFields": "Name, description, and programming language are all required",
     "uploadError": "Something went wrong while uploading",
+    "someFilesFailed": "The project was created, but {{count}} file(s) failed to upload. Press submit again to retry just the remaining files, or open the project as-is.",
+    "viewProjectAnyway": "Open the project as-is",
     "uploading": "Uploading...",
     "submit": "Publish project",
     "sectionInfo": "Basics",
