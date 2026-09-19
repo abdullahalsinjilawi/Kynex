@@ -19,6 +19,7 @@ export default function AdminReports() {
   const [statusFilter, setStatusFilter] = useState('pending');
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState({});
+  const [notice, setNotice] = useState('');
 
   const load = () => {
     setLoading(true);
@@ -31,16 +32,26 @@ export default function AdminReports() {
   useEffect(load, [statusFilter]);
 
   const handleUpdate = async (report, status, banReportedUser) => {
-    await apiClient.put(`/admin/reports/${report._id}`, {
+    const res = await apiClient.put(`/admin/reports/${report._id}`, {
       status,
       adminNote: notes[report._id] || report.adminNote,
       banReportedUser,
     });
+    if (res.data.banSkipped) {
+      setNotice(res.data.banSkippedMessage);
+      setTimeout(() => setNotice(''), 4000);
+    }
     load();
   };
 
   return (
     <div>
+      {notice && (
+        <p className="mb-4 rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-gold">
+          {notice}
+        </p>
+      )}
+
       <div className="no-scrollbar mb-5 flex gap-2 overflow-x-auto">
         {STATUSES.map((s) => (
           <button

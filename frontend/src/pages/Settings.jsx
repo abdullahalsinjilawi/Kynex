@@ -9,6 +9,7 @@ import Spinner from '../components/Spinner';
 
 const SECTIONS = [
   { id: 'profile', labelKey: 'settings.profile' },
+  { id: 'username', labelKey: 'settings.usernameTitle' },
   { id: 'huggingface', labelKey: 'settings.hfTokenTitle' },
   { id: 'api-key', labelKey: 'settings.apiKeyTitle' },
   { id: 'danger', labelKey: 'settings.dangerZone' },
@@ -24,6 +25,11 @@ export default function Settings() {
   const [bio, setBio] = useState(user?.bio || '');
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMessage, setProfileMessage] = useState('');
+
+  const [username, setUsername] = useState(user?.username || '');
+  const [savingUsername, setSavingUsername] = useState(false);
+  const [usernameMessage, setUsernameMessage] = useState('');
+  const [usernameError, setUsernameError] = useState('');
 
   const [hfToken, setHfToken] = useState('');
   const [hasHfToken, setHasHfToken] = useState(false);
@@ -52,6 +58,22 @@ export default function Settings() {
       setTimeout(() => setProfileMessage(''), 2500);
     } finally {
       setSavingProfile(false);
+    }
+  };
+
+  const handleSaveUsername = async (event) => {
+    event.preventDefault();
+    setUsernameError('');
+    setSavingUsername(true);
+    try {
+      const res = await apiClient.put('/users/username', { username });
+      setUser(res.data.user);
+      setUsernameMessage(t('settings.usernameSaved'));
+      setTimeout(() => setUsernameMessage(''), 2500);
+    } catch (err) {
+      setUsernameError(err.response?.data?.message || t('settings.usernameSaveError'));
+    } finally {
+      setSavingUsername(false);
     }
   };
 
@@ -177,6 +199,50 @@ export default function Settings() {
                 {profileMessage && (
                   <span role="status" className="text-sm text-success">
                     {profileMessage}
+                  </span>
+                )}
+              </div>
+            </form>
+          </section>
+
+          {/* --------------------------- اسم المستخدم --------------------------- */}
+          <section id="username" className="panel scroll-mt-24 p-6">
+            <h2 className="section-title mb-1">{t('settings.usernameTitle')}</h2>
+            <p className="mb-6 text-sm leading-relaxed text-muted">{t('settings.usernameDesc')}</p>
+
+            {!user?.username && (
+              <p className="mb-4 rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-gold">
+                {t('settings.usernameMissingWarning')}
+              </p>
+            )}
+
+            <form onSubmit={handleSaveUsername} className="flex flex-col gap-4">
+              <div>
+                <label className="field-label" htmlFor="settings-username">
+                  {t('settings.usernameTitle')}
+                </label>
+                <input
+                  id="settings-username"
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value.toLowerCase())}
+                  dir="ltr"
+                  pattern="[a-z0-9_-]{3,30}"
+                  placeholder={t('auth.register.usernamePlaceholder')}
+                  className="input"
+                />
+                <p className="mt-1.5 text-xs text-muted">{t('auth.register.usernameHint')}</p>
+              </div>
+
+              <FormError>{usernameError}</FormError>
+
+              <div className="flex items-center gap-3">
+                <button disabled={savingUsername} className="btn btn-primary self-start">
+                  {savingUsername && <Spinner />}
+                  {t('common.save')}
+                </button>
+                {usernameMessage && (
+                  <span role="status" className="text-sm text-success">
+                    {usernameMessage}
                   </span>
                 )}
               </div>

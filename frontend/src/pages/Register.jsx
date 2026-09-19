@@ -25,6 +25,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -50,7 +51,13 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const res = await apiClient.post('/auth/register', { name, email, password, acceptedTerms });
+      const res = await apiClient.post('/auth/register', {
+        name,
+        username,
+        email,
+        password,
+        acceptedTerms,
+      });
       // ما فيه خطوة تفعيل — الباك اند بيرجع المستخدم موصول (كوكي الجلسة انحطت مباشرة)
       login(res.data.user, res.data.token);
       navigate('/');
@@ -88,6 +95,25 @@ export default function Register() {
             autoComplete="name"
             className="input"
           />
+        </div>
+
+        <div>
+          <label className="field-label" htmlFor="register-username">
+            {t('auth.register.username')}
+          </label>
+          <input
+            id="register-username"
+            type="text"
+            required
+            value={username}
+            onChange={(event) => setUsername(event.target.value.toLowerCase())}
+            placeholder={t('auth.register.usernamePlaceholder')}
+            autoComplete="username"
+            dir="ltr"
+            pattern="[a-z0-9_-]{3,30}"
+            className="input"
+          />
+          <p className="mt-1.5 text-xs text-muted">{t('auth.register.usernameHint')}</p>
         </div>
 
         <div>
