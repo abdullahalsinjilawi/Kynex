@@ -44,6 +44,10 @@ const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
   .map((origin) => origin.trim().replace(/\/$/, ''))
   .filter(Boolean);
 
+// نطبعها مرة وحدة عند إقلاع السيرفر، حتى لو صار CORS رفض طلب، نقدر نقارن مباشرة
+// بين هاد السطر بالـ logs وبين الـ origin يلي انرفض (بالسطر التحذيري تحت) بدل ما نخمّن
+logger.info(`✅ CORS - الدومينات المسموحة حالياً: ${allowedOrigins.join(', ') || '(فاضية!)'}`);
+
 app.use(
   cors({
     origin: (origin, callback) => {

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   createProject,
+  addProjectFile,
   getProjects,
   getFeaturedProjects,
   getProjectBySlug,
@@ -38,6 +39,9 @@ router.post(
   createProjectValidators,
   createProject
 );
+// نرفع كل ملف بطلب منفصل (بدل ما نبعتهم كلهم بطلب واحد ضخم) - أنظر التعليق
+// فوق addProjectFile بـ controller لتفاصيل السبب
+router.post('/:slug/files', protect, requireActiveAccount, upload.single('file'), addProjectFile);
 router.put('/:slug', protect, requireActiveAccount, upload.array('files'), updateProject);
 router.delete('/:slug', protect, deleteProject);
 router.post('/:slug/star', protect, requireActiveAccount, toggleStar);

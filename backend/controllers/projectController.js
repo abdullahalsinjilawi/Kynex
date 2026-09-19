@@ -55,9 +55,9 @@ function normalizeFilePaths(rawFilePaths, filesCount) {
 // دالة مساعدة: ترفع مجموعة ملفات (من multer) للتخزين الدائم وترجع بياناتها الوصفية
 // filePaths: مصفوفة مسارات نسبية مقابلة لكل ملف (من رفع مجلد كامل عبر webkitdirectory)،
 // لو فاضية أو ناقصة بنستخدم اسم الملف الأصلي بدلها (رفع ملفات مفردة بدون مجلد)
-async function processUploadedFiles(files, ownerId, projectSlug, filePaths = [], lang = 'ar') {
+async function processUploadedFiles(files, ownerId, projectSlug, filePaths = [], lang = 'ar', existingPaths = []) {
   const uploadedFilesMeta = [];
-  const usedKeys = new Set(); // نتفادى تعارض storageKey لو صار نفس المسار مرتين بنفس الرفعة
+  const usedKeys = new Set(existingPaths); // نبدأ بمسارات موجودة مسبقاً (لو الرفع عبر عدة طلبات منفصلة)
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
@@ -176,6 +176,58 @@ const createProject = async (req, res, next) => {
     await project.save();
 
     res.status(201).json({ success: true, project });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @route  POST /api/projects/:slug/files
+// @desc   إضافة ملف واحد لمشروع موجود مسبقاً - نستخدمها بدل ما نرفع كل ملفات المشروع
+//         بطلب واحد ضخم (اللي بينضرب أحياناً بحد أقصى على عدد أجزاء الـ multipart
+//         عند طبقة الـ proxy/edge، حتى لو الحجم الكلي صغير)، فالفرونت اند بيرفع كل
+//         ملف بطلب منفصل بعد ما ينشئ المشروع فاضي أول شي عبر createProject
+const addProjectFile = async (req, res, next) => {
+  try {
+    const project = await Project.findOne({ slug: req.params.slug, isDeleted: false });
+
+    if (!project) {
+      return res.status(404).json({ success: false, message: t(req.lang, 'projectNotFound') });
+    }
+
+    if (String(project.owner) !== String(req.user._id)) {
+      return res.status(403).json({ success: false, message: t(req.lang, 'notYourProject') });
+    }
+
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ success: false, message: t(req.lang, 'noFileProvided') });
+    }
+
+    if (project.totalSizeBytes + file.size > MAX_PROJECT_SIZE) {
+      await fs.promises.unlink(file.path).catch(() => {});
+      return res.status(400).json({
+        success: false,
+        message: t(req.lang, 'projectSizeExceeded', { maxGb: MAX_PROJECT_SIZE / (1024 * 1024 * 1024) }),
+      });
+    }
+
+    // نمرر مسارات الملفات الموجودة مسبقاً حتى تفادي تعارض الأسماء يشتغل صح
+    // عبر طلبات منفصلة، مش بس جوا نفس الطلب الواحد
+    const existingPaths = project.files.map((f) => f.relativePath);
+    const [newFileMeta] = await processUploadedFiles(
+      [file],
+      project.owner,
+      project.slug,
+      [req.body.filePath || ''],
+      req.lang,
+      existingPaths
+    );
+
+    project.files.push(newFileMeta);
+    project.totalSizeBytes += newFileMeta.size;
+    await project.save();
+
+    res.status(201).json({ success: true, file: newFileMeta });
   } catch (error) {
     next(error);
   }
@@ -557,6 +609,7 @@ const getLicenseOptions = async (req, res, next) => {
 
 module.exports = {
   createProject,
+  addProjectFile,
   getProjects,
   getFeaturedProjects,
   getProjectBySlug,
