@@ -305,6 +305,8 @@
     "uploadError": "Something went wrong while uploading",
     "someFilesFailed": "The project was created, but {{count}} file(s) failed to upload. Press submit again to retry just the remaining files, or open the project as-is.",
     "viewProjectAnyway": "Open the project as-is",
+    "resumingProject": "You already started uploading this project and it's missing files - pick the same folder again and press submit to finish the rest.",
+    "startNewProject": "No, start a new project instead",
     "uploading": "Uploading...",
     "submit": "Publish project",
     "sectionInfo": "Basics",

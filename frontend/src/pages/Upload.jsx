@@ -16,6 +16,16 @@ const CATEGORIES = [
   { value: 'other', labelKey: 'categories.other' },
 ];
 
+// مفتاح نخزن فيه slug المشروع الناقص بالـ sessionStorage، حتى لو المستخدم عمل
+// reload للصفحة (أو سكّر التاب وفتحها بعدين بنفس الجلسة) نقدر نكمل نفس المشروع
+// بدل ما ننشئ مشروع جديد، ونتفادى نرفع نفس الملفات مرتين
+const RESUME_SESSION_KEY = 'kynex_upload_resume_slug';
+
+// نفس المفتاح المنطقي يلي منستخدمه نحدد فيه هوية كل ملف (مساره النسبي لو من
+// مجلد، وإلا اسمه العادي) - نستخدمه كمان نقارن مع الملفات الموجودة أصلاً
+// بالمشروع (من السيرفر) حتى ما نعيد رفع نفس الملف يلي نجح رفعه بمحاولة سابقة
+const fileKey = (file) => file.webkitRelativePath || file.name;
+
 /** قسم واحد من الفورم: عنوان + شرح سطر + محتواه داخل بطاقة. */
 function Section({ title, description, children }) {
   return (
@@ -56,6 +66,35 @@ export default function Upload() {
     });
   }, []);
 
+  // لو فيه مشروع ناقص محفوظ من محاولة سابقة (حتى لو الصفحة انعملها reload)،
+  // منجيب بياناته من السيرفر ونعبّي الفورم فيها حتى المستخدم يقدر يكمل الرفع
+  // بمجرد ما يختار نفس المجلد من جديد ويضغط إرسال
+  useEffect(() => {
+    const savedSlug = sessionStorage.getItem(RESUME_SESSION_KEY);
+    if (!savedSlug) return;
+
+    apiClient
+      .get(`/projects/${savedSlug}`)
+      .then((res) => {
+        const project = res.data.project;
+        setCreatedSlug(savedSlug);
+        setForm({
+          name: project.name || '',
+          description: project.description || '',
+          readme: project.readme || '',
+          category: project.category || 'training-code',
+          language: project.language || '',
+          tags: (project.tags || []).join(', '),
+          licenseType: project.license?.type || 'MIT',
+          licenseCustomText: project.license?.customText || '',
+        });
+      })
+      .catch(() => {
+        // المشروع المحفوظ ما عاد موجود (انحذف مثلاً) - منمسح المرجع القديم ونبلش نظيف
+        sessionStorage.removeItem(RESUME_SESSION_KEY);
+      });
+  }, []);
+
   const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
   // من input الملفات المفردة أو من input المجلد أو من الإفلات - بكل الحالات منحوّل
@@ -68,7 +107,51 @@ export default function Upload() {
   const removeFile = (index) => setFiles((prev) => prev.filter((_, i) => i !== index));
   const clearFiles = () => setFiles([]);
 
+  // يلغي ربط الفورم بالمشروع الناقص المحفوظ، ويرجّع كل شي فاضي - للحالة يلي
+  // المستخدم فعلياً بدو يبلش مشروع تاني مختلف تماماً، مش يكمل نفس القديم
+  const startNewProject = () => {
+    sessionStorage.removeItem(RESUME_SESSION_KEY);
+    setCreatedSlug(null);
+    setFiles([]);
+    setError('');
+    setForm({
+      name: '',
+      description: '',
+      readme: '',
+      category: 'training-code',
+      language: '',
+      tags: '',
+      licenseType: 'MIT',
+      licenseCustomText: '',
+    });
+  };
+
   const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+
+  // بترفع ملف واحد، ومحاولة تانية تلقائية لو فشلت الأولى (مهلة/شبكة) قبل ما
+  // نستسلم فعلياً - المهلة (timeout) هون أهم شي: بدونها أي طلب عالق (connection
+  // متجمدة) بيوقف الرفع كله للأبد حتى لو باقي 49 ملف خلصوا، لأنو Promise.all
+  // بينتظر كل العمال (workers) يخلصوا، وعامل عالق ما بيخلص أبداً
+  const uploadOneFile = async (slug, file, onProgress) => {
+    const fileFormData = new FormData();
+    fileFormData.append('file', file);
+    fileFormData.append('filePath', file.webkitRelativePath || '');
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        await apiClient.post(`/projects/${slug}/files`, fileFormData, {
+          timeout: 120000, // دقيقتين كحد أقصى للملف الواحد - كافي جداً لملف كود عادي
+          onUploadProgress: (evt) => onProgress(evt.loaded),
+        });
+        onProgress(file.size);
+        return true;
+      } catch {
+        if (attempt === 2) return false;
+        onProgress(0); // نصفّر تقدم هاد الملف قبل ما نعيد المحاولة
+      }
+    }
+    return false;
+  };
 
   // برفع كل ملف بطلب HTTP منفصل بدل ما نبعتهم كلهم بطلب واحد - بعض المزودين (زي
   // Render) بيرفضوا الطلب على مستوى الـ proxy لو فيه أجزاء (parts) كتير بنفس
@@ -91,22 +174,11 @@ export default function Upload() {
     const worker = async () => {
       while (nextIndex < filesToUpload.length) {
         const i = nextIndex++;
-        const file = filesToUpload[i];
-        const fileFormData = new FormData();
-        fileFormData.append('file', file);
-        fileFormData.append('filePath', file.webkitRelativePath || '');
-        try {
-          await apiClient.post(`/projects/${slug}/files`, fileFormData, {
-            onUploadProgress: (evt) => {
-              loadedBytes[i] = evt.loaded;
-              updateProgress();
-            },
-          });
-          loadedBytes[i] = file.size;
+        const ok = await uploadOneFile(slug, filesToUpload[i], (loaded) => {
+          loadedBytes[i] = loaded;
           updateProgress();
-        } catch {
-          failed.push(file);
-        }
+        });
+        if (!ok) failed.push(filesToUpload[i]);
       }
     };
 
@@ -130,8 +202,9 @@ export default function Upload() {
     setProgress(0);
     try {
       // لو أول محاولة (أو لو محاولة سابقة فشلت بمرحلة إنشاء المشروع نفسها)، ننشئ
-      // المشروع فاضي من الملفات أول شي. لو إعادة محاولة بعد فشل جزئي بالملفات،
-      // بنستخدم نفس الـ slug المخزّن بدل ما ننشئ مشروع تاني من الصفر
+      // المشروع فاضي من الملفات أول شي. لو إعادة محاولة (بعد فشل جزئي، أو حتى
+      // بعد إعادة تحميل الصفحة لأنو الـ slug محفوظ بالـ sessionStorage)، بنستخدم
+      // نفس الـ slug بدل ما ننشئ مشروع تاني من الصفر
       let slug = createdSlug;
       if (!slug) {
         const formData = new FormData();
@@ -139,16 +212,27 @@ export default function Upload() {
         const res = await apiClient.post('/projects', formData);
         slug = res.data.project.slug;
         setCreatedSlug(slug);
+        sessionStorage.setItem(RESUME_SESSION_KEY, slug);
       }
 
-      const failed = await uploadFilesToProject(slug, files);
+      // منجيب قائمة الملفات الموجودة فعلياً بالمشروع من السيرفر (مش من ذاكرة
+      // المتصفح) قبل ما نرفع - هيك حتى لو صار reload للصفحة أو الجلسة ضاعت،
+      // منتخطى تلقائياً أي ملف سبق ورفع بنجاح بدل ما نرفعه مرتين
+      const projectRes = await apiClient.get(`/projects/${slug}`);
+      const existingKeys = new Set(
+        (projectRes.data.project.files || []).map((f) => f.relativePath)
+      );
+      const remainingFiles = files.filter((f) => !existingKeys.has(fileKey(f)));
+
+      const failed = await uploadFilesToProject(slug, remainingFiles);
 
       if (failed.length === 0) {
+        sessionStorage.removeItem(RESUME_SESSION_KEY);
         navigate(`/project/${slug}`);
         return;
       }
 
-      setFiles(failed); // منخلي بس الملفات اللي فشلت جاهزة لإعادة المحاولة
+      setFiles(failed); // منخلي بس الملفات اللي فشلت فعلاً (بعد إعادة المحاولة التلقائية) جاهزة لإعادة المحاولة اليدوية
       setError(t('upload.someFilesFailed', { count: failed.length }));
       setLoading(false);
     } catch (err) {
@@ -164,6 +248,15 @@ export default function Upload() {
       <PageHeader title={t('upload.title')} description={t('upload.subtitle')} />
 
       <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-8 sm:px-6">
+        {createdSlug && (
+          <p className="rounded-xl border border-line-soft bg-elevated px-3.5 py-2.5 text-sm text-muted">
+            {t('upload.resumingProject')}{' '}
+            <button type="button" onClick={startNewProject} className="font-medium text-fg underline">
+              {t('upload.startNewProject')}
+            </button>
+          </p>
+        )}
+
         {error && (
           <FormError>
             {error}
