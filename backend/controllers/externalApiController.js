@@ -1,26 +1,35 @@
 const archiver = require('archiver');
+const User = require('../models/User');
 const Project = require('../models/Project');
 const ApiDownloadLog = require('../models/ApiDownloadLog');
 const { getFileStream } = require('../utils/fileStorage');
+const { isOwnerHidden } = require('../utils/visibility');
 const { t } = require('../utils/i18n');
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
-// @route  GET /api/external/projects/:slug/download
-// @desc   تنزيل مشروع برمجياً عن طريق API key، بحد أقصى مرة واحدة كل 24 ساعة لكل جهة طالبة
+// @route  GET /api/external/projects/:username/:projectName/download
+// @desc   تنزيل أي مشروع عام على المنصة برمجياً عن طريق API key + (اسم صاحب
+//         المشروع + اسم المشروع) بدل الـ slug - أسهل للاستخدام من سكربت أو أمر
+//         طرفية لما تعرف اسم صاحب المشروع واسمه بس. بحد أقصى مرة كل 24 ساعة
+//         لكل جهة طالبة لنفس المشروع (بغض النظر مين صاحبه)
 const downloadViaApi = async (req, res, next) => {
   try {
-    const project = await Project.findOne({ slug: req.params.slug, isDeleted: false });
+    const owner = await User.findOne({ username: req.params.username.toLowerCase() });
 
-    if (!project) {
+    if (!owner || isOwnerHidden(owner)) {
       return res.status(404).json({ success: false, message: t(req.lang, 'projectNotFound') });
     }
 
-    // الـ API key بيسمح فقط بتنزيل مشاريع صاحبه هو، مش أي مشروع على المنصة
-    if (String(project.owner) !== String(req.apiOwner._id)) {
-      return res
-        .status(403)
-        .json({ success: false, message: t(req.lang, 'apiKeyNotAuthorizedForProject') });
+    // مطابقة اسم المشروع بدون حساسية لحالة الأحرف - أسهل بالاستخدام من الطرفية
+    const project = await Project.findOne({
+      owner: owner._id,
+      isDeleted: false,
+      name: new RegExp(`^${req.params.projectName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'),
+    });
+
+    if (!project) {
+      return res.status(404).json({ success: false, message: t(req.lang, 'projectNotFound') });
     }
 
     const callerIp = req.ip;

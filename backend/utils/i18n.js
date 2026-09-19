@@ -24,6 +24,10 @@ const messages = {
     // ============ auth ============
     mustAcceptTerms: 'يجب الموافقة على شروط الاستخدام للمتابعة',
     emailAlreadyUsed: 'هذا الإيميل مستخدم مسبقاً',
+    usernameRequired: 'اسم المستخدم مطلوب',
+    usernameLength: 'اسم المستخدم لازم يكون بين 3 و30 حرف',
+    usernameInvalidFormat: 'اسم المستخدم بيقبل بس حروف إنجليزية صغيرة وأرقام و_ و-',
+    usernameTaken: 'اسم المستخدم هذا مأخوذ مسبقاً',
     registeredSuccess: 'تم إنشاء الحساب بنجاح',
     invalidCredentials: 'الإيميل أو كلمة السر غير صحيحة',
     accountLocked: 'الحساب مقفول مؤقتاً بسبب محاولات دخول فاشلة كتيرة. حاول بعد {{minutes}} دقيقة',
@@ -148,6 +152,10 @@ const messages = {
 
     mustAcceptTerms: 'You must accept the Terms of Use to continue',
     emailAlreadyUsed: 'This email is already in use',
+    usernameRequired: 'Username is required',
+    usernameLength: 'Username must be between 3 and 30 characters',
+    usernameInvalidFormat: 'Username can only contain lowercase letters, numbers, _ and -',
+    usernameTaken: 'This username is already taken',
     registeredSuccess: 'Account created successfully',
     invalidCredentials: 'Incorrect email or password',
     accountLocked: 'Account is temporarily locked due to too many failed login attempts. Try again in {{minutes}} minutes',

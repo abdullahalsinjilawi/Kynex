@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   updateProfile,
+  setUsername,
   setHuggingFaceToken,
   deleteHuggingFaceToken,
   getHuggingFaceTokenStatus,
@@ -15,6 +16,7 @@ const { protect } = require('../middleware/auth');
 
 // --- Routes خاصة (تتطلب تسجيل دخول) ---
 router.put('/profile', protect, updateProfile);
+router.put('/username', protect, setUsername);
 
 router.put('/huggingface-token', protect, setHuggingFaceToken);
 router.delete('/huggingface-token', protect, deleteHuggingFaceToken);

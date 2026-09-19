@@ -195,6 +195,7 @@ const updateReportStatus = async (req, res, next) => {
     await report.save();
 
     let bannedUserId = null;
+    let banSkippedAdmin = false;
 
     if (banReportedUser) {
       let userIdToBan = null;
@@ -213,11 +214,18 @@ const updateReportStatus = async (req, res, next) => {
       }
 
       if (userIdToBan) {
-        await User.findByIdAndUpdate(userIdToBan, {
-          isBanned: true,
-          banReason: banReason || t(req.lang, 'bannedDueToReport', { reason: report.reason }),
-        });
-        bannedUserId = userIdToBan;
+        // نفس حماية toggleBanUser - ما فيك تحظر حساب أدمن عن طريق البلاغات (يشمل
+        // حالة إنو الشخص المُبلَّغ عنه هو نفسه الأدمن يلي عم يعالج البلاغ حالياً)
+        const targetUser = await User.findById(userIdToBan);
+        if (targetUser && targetUser.role === 'admin') {
+          banSkippedAdmin = true;
+        } else if (targetUser) {
+          await User.findByIdAndUpdate(userIdToBan, {
+            isBanned: true,
+            banReason: banReason || t(req.lang, 'bannedDueToReport', { reason: report.reason }),
+          });
+          bannedUserId = userIdToBan;
+        }
       }
     }
 
@@ -226,7 +234,11 @@ const updateReportStatus = async (req, res, next) => {
       bannedUserId,
     });
 
-    res.status(200).json({ success: true, report });
+    res.status(200).json({
+      success: true,
+      report,
+      ...(banSkippedAdmin && { banSkipped: true, banSkippedMessage: t(req.lang, 'cantBanAdmin') }),
+    });
   } catch (error) {
     next(error);
   }

@@ -21,6 +21,31 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
+// @route  PUT /api/users/username
+// @desc   تحديد أو تغيير اسم المستخدم الفريد - ضروري خصوصاً للحسابات القديمة يلي
+//         اتسجلت قبل ما نضيف هاد الحقل (كان اختياري بالبداية، عندهم null)
+const setUsername = async (req, res, next) => {
+  try {
+    const username = (req.body.username || '').trim().toLowerCase();
+
+    if (!/^[a-z0-9_-]{3,30}$/.test(username)) {
+      return res.status(400).json({ success: false, message: t(req.lang, 'usernameInvalidFormat') });
+    }
+
+    const existing = await User.findOne({ username, _id: { $ne: req.user._id } });
+    if (existing) {
+      return res.status(400).json({ success: false, message: t(req.lang, 'usernameTaken') });
+    }
+
+    req.user.username = username;
+    await req.user.save();
+
+    res.status(200).json({ success: true, user: sanitizeUser(req.user) });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @route  PUT /api/users/huggingface-token
 // @desc   إضافة أو تحديث توكن HuggingFace (يُشفّر قبل التخزين مباشرة)
 const setHuggingFaceToken = async (req, res, next) => {
@@ -158,6 +183,7 @@ const restoreAccount = async (req, res, next) => {
 
 module.exports = {
   updateProfile,
+  setUsername,
   setHuggingFaceToken,
   deleteHuggingFaceToken,
   getHuggingFaceTokenStatus,

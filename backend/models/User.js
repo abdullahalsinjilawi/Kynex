@@ -10,6 +10,20 @@ const userSchema = new mongoose.Schema(
       trim: true,
       maxlength: [50, 'الاسم يجب ألا يتجاوز 50 حرف'],
     },
+    // --- اسم مستخدم فريد (زي GitHub) - نستخدمه بعناوين زي /api/external/:username/:projectName
+    // بدل الاعتماد على "name" العادي يلي ممكن يتكرر بين شخصين. مش required على
+    // مستوى الـ schema (بعكس ما هو مطلوب بالتسجيل الجديد) حتى ما نكسر .save() لأي
+    // مستخدم قديم سجّل قبل ما نضيف هاد الحقل - هدول لازم يحطوه لاحقاً من الإعدادات
+    username: {
+      type: String,
+      unique: true,
+      sparse: true, // يسمح بمستخدمين قدام بدون username (null) بدون تعارض unique
+      lowercase: true,
+      trim: true,
+      minlength: [3, 'اسم المستخدم لازم يكون 3 أحرف عالأقل'],
+      maxlength: [30, 'اسم المستخدم ما ينفعش يتجاوز 30 حرف'],
+      match: [/^[a-z0-9_-]+$/, 'اسم المستخدم بيقبل بس حروف إنجليزية صغيرة وأرقام و_ و-'],
+    },
     email: {
       type: String,
       required: [true, 'الإيميل مطلوب'],

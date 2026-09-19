@@ -20,6 +20,15 @@ const msg = (key, params) => (value, { req }) => t(req.lang, key, params);
 
 const registerValidators = [
   body('name').trim().notEmpty().withMessage(msg('nameRequired')).isLength({ max: 50 }),
+  body('username')
+    .trim()
+    .toLowerCase()
+    .notEmpty()
+    .withMessage(msg('usernameRequired'))
+    .isLength({ min: 3, max: 30 })
+    .withMessage(msg('usernameLength'))
+    .matches(/^[a-z0-9_-]+$/)
+    .withMessage(msg('usernameInvalidFormat')),
   body('email').trim().isEmail().withMessage(msg('emailInvalid')).normalizeEmail(),
   body('password').isLength({ min: 8 }).withMessage(msg('passwordMinLength')),
   handleValidationErrors,

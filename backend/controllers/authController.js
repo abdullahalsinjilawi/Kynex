@@ -7,6 +7,7 @@ const { t } = require('../utils/i18n');
 const sanitizeUser = (user) => ({
   id: user._id,
   name: user.name,
+  username: user.username || null,
   email: user.email,
   bio: user.bio,
   socialLinks: user.socialLinks,
@@ -37,7 +38,7 @@ const setAuthCookie = (res, userId) => {
 // @route  POST /api/auth/register
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, acceptedTerms } = req.body;
+    const { name, username, email, password, acceptedTerms } = req.body;
 
     if (!acceptedTerms) {
       return res
@@ -50,8 +51,13 @@ const register = async (req, res, next) => {
       return res.status(400).json({ success: false, message: t(req.lang, 'emailAlreadyUsed') });
     }
 
+    const existingUsername = await User.findOne({ username: username.toLowerCase() });
+    if (existingUsername) {
+      return res.status(400).json({ success: false, message: t(req.lang, 'usernameTaken') });
+    }
+
     // ما فيه كود تفعيل ولا إيميل تحقق — الحساب يصير فعّال وموصول مباشرة بعد التسجيل
-    const user = new User({ name, email, password, acceptedTermsAt: Date.now() });
+    const user = new User({ name, username, email, password, acceptedTermsAt: Date.now() });
     await user.save();
 
     logger.info(`مستخدم جديد سجّل: ${user.email}`);
